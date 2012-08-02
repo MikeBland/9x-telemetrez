@@ -49,3 +49,8 @@
 #define pin16PIN PINB
 #define IO16 3 // PB3
 
+// uncomment the following line to enable piggybacked Frsky
+// output to a bluetooth module
+//#define BLUETOOTH
+
+

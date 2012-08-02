@@ -130,6 +130,11 @@ void setup(void) {
     lowPinDDR |= (1<<IO1)|(1<<IO2)|(1<<IO3)|(1<<IO4)|(1<<IO5);
     lowPinPORT &= ~((1<<IO1)|(1<<IO2)|(1<<IO3)|(1<<IO4)|(1<<IO5));
 
+#ifdef BLUETOOTH
+    pin16DDR &= ~(1<<IO16); // disable output to bluetooth
+    pin16PORT &= ~(1<<IO16);
+#endif
+
     //USART0:
     UBRR0 = 12; // 9600 baud @ 1MHz
     UCSR0A = (1<<U2X0);  // double USART speed
@@ -171,12 +176,20 @@ ISR(USART1__UDRE_vect) {
                 NinexTx_RB.pop(); // remove the byte from the buffer
                 U1TXstate = sendSwitchpacket;
                 SwitchBuf_count = 0;
+#ifdef BLUETOOTH
+                pin16DDR &= ~(1<<IO16); // disable output to bluetooth
+                pin16PORT &= ~(1<<IO16);
+#endif
                 break;
             }
             if(FrskyTx_RB.empty()) { // if the buffer is empty
                     UCSR1B &= ~(1<<UDRIE1); // disable interrupt
                     break;
             }
+#ifdef BLUETOOTH
+            pin16DDR |= (1<<IO16); // enable output to bluetooth
+            pin16PORT |= (1<<IO16);
+#endif
             UDR1 = NinexTx_RB.front(); // load next byte from buffer
             NinexTx_RB.pop(); // remove the byte from the buffer
             U1TXstate = sendFrskypacket;
