@@ -24,8 +24,6 @@
 #define BufSize 20
 volatile uint8_t FrskyRxBuf[BufSize];
 volatile uint8_t NinexRxBuf[BufSize];
-volatile uint8_t TxFrsky_count=0;
-volatile uint8_t Tx9x_count=0;
 volatile uint8_t SwitchBuf[4];
 volatile uint8_t numPktBytesFrsky = 0;
 volatile uint8_t numPktBytes9x = 0;
@@ -34,13 +32,12 @@ volatile ring_buffer FrskyTx_RB; // ring buffers for the pass thru
 volatile ring_buffer NinexTx_RB;
 
 volatile struct flgRegs {
-    uint8_t sendSwitches:1;
-    uint8_t switchto9x:1;
-    uint8_t sendingtoFrsky:1;
-    uint8_t PktReceivedFrsky:1;
-    uint8_t PktReceived9x:1;
-    uint8_t FrskyRxBufferReady:1;
-    uint8_t NinexRxBufferReady:1;
+    uint8_t sendSwitches:1; // trigger main to send switch states
+    uint8_t switchto9x:1;   // currently sending switch states to 9x
+    uint8_t sendingtoFrsky:1;   // currently sending frsky packet to frsky module
+    uint8_t PktReceived9x:1;    // packet received from 9x for here, needs processing
+    uint8_t FrskyRxBufferReady:1; // Frsky Packet received from Frsky module, forward to 9x
+    uint8_t NinexRxBufferReady:1; // Frsky Packet received from 9x, forward to Frsky module
 } flags;
 
 void setup(void);
