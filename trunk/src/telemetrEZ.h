@@ -21,15 +21,17 @@
 // Frsky side is USART0
 // 9x side is USART1
 
-#define switch_port PORTA
-#define switch_ddr DDRA
-#define switch_pin PINA
+#define switch_PORT PORTA
+#define switch_DDR DDRA
+#define switch_PIN PINA
+#define switch_PUE PUEA
 #define AIL_sw 1
 #define THR_sw 0
 
 #define lowPinDDR DDRA
 #define lowPinPORT PORTA
 #define lowPinPIN PINA
+#define lowPinPUE PUEA
 #define IO1 6 // PA6
 #define IO2 5 // PA5
 #define IO3 4 // PA4
@@ -39,6 +41,7 @@
 #define highPinDDR DDRC
 #define highPinPORT PORTC
 #define highPinPIN PINC
+#define highPinPUE PUEC
 #define IO10 5 // PC5
 #define IO11 4 // PC4
 #define IO13 2 // PC2
@@ -47,6 +50,7 @@
 #define pin16DDR DDRB
 #define pin16PORT PORTB
 #define pin16PIN PINB
+#define pin16PUE PUEB
 #define IO16 3 // PB3
 
 // uncomment the following line to enable piggybacked Frsky

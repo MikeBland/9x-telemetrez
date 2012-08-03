@@ -56,9 +56,9 @@ int main() {
     // send switch values every 20ms
         if(flags.sendSwitches) {
             uint8_t tmp = 0b11000000; // setup for sending
-            if(bit_is_clear(switch_pin, AIL_sw)) // switch is active
+            if(bit_is_clear(switch_PIN, AIL_sw)) // switch is active
                 tmp &= ~(1<<7); // clear the bit
-            if(bit_is_clear(switch_pin, THR_sw)) // switch is active
+            if(bit_is_clear(switch_PIN, THR_sw)) // switch is active
                 tmp &= ~(1<<6); // clear the bit
             while(flags.switchto9x);  // wait for current transmission to complete
             cli();
@@ -121,15 +121,17 @@ void setup(void) {
     ACSRA = (1<<ACD); // analog comparator
 
     // set up ports
-    switch_ddr &= ~((1<<AIL_sw)|(1<<THR_sw)); // switches are inputs
-    switch_port |= (1<<AIL_sw)|(1<<THR_sw); // enable pull-ups
+    switch_DDR &= ~((1<<AIL_sw)|(1<<THR_sw)); // switches are inputs
+    switch_PUE |= (1<<AIL_sw)|(1<<THR_sw); // enable pull-ups
 
     lowPinDDR |= (1<<IO1)|(1<<IO2)|(1<<IO3)|(1<<IO4)|(1<<IO5);
     lowPinPORT &= ~((1<<IO1)|(1<<IO2)|(1<<IO3)|(1<<IO4)|(1<<IO5));
 
 #ifdef BLUETOOTH
     pin16DDR &= ~(1<<IO16); // disable output to bluetooth
-    pin16PORT &= ~(1<<IO16);
+    pin16PORT |= (1<<IO16); // set the output high, pull-ups are on a different register 
+                            // this chip, so high-impedance output should not be driven
+    pin16PUE &= ~(1<<IO16); // make sure pull-up is off
 #endif
 
     //USART0:
@@ -175,7 +177,6 @@ ISR(USART1__UDRE_vect) {
                 SwitchBuf_count = 0;
 #ifdef BLUETOOTH
                 pin16DDR &= ~(1<<IO16); // disable output to bluetooth
-                pin16PORT &= ~(1<<IO16);
 #endif
                 break;
             }
@@ -185,7 +186,6 @@ ISR(USART1__UDRE_vect) {
             }
 #ifdef BLUETOOTH
             pin16DDR |= (1<<IO16); // enable output to bluetooth
-            pin16PORT |= (1<<IO16);
 #endif
             UDR1 = NinexTx_RB.front(); // load next byte from buffer
             NinexTx_RB.pop(); // remove the byte from the buffer
@@ -385,7 +385,7 @@ ISR(USART1__RX_vect)
   }
 }
 
-ISR(TIMER0_OVF_vect) {
+ISR(TIMER0_COMPA_vect) {
     flags.sendSwitches = 1;
     lowPinPORT ^= (1<<IO5); // toggle output for timing
 }
