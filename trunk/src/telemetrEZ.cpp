@@ -43,6 +43,11 @@ volatile struct flgRegs {
 void setup(void);
 
 int main() {
+#if F_CPU == 8000000
+    CCP = 0xD8; // Unlock protected IO signature
+    CLKPR = 0; // run at 8MHz
+#endif
+
     flags.sendSwitches = 1; // the very first thing it will do
                             // is send the switch states to the 9x
     setup();
@@ -135,14 +140,22 @@ void setup(void) {
 #endif
 
     //USART0:
+#if F_CPU == 8000000
+    UBRR0 = 103; // 9600 baud @ 8MHz
+#elif F_CPU == 1000000
     UBRR0 = 12; // 9600 baud @ 1MHz
+#endif
     UCSR0A = (1<<U2X0);  // double USART speed
     UCSR0C = (1<<UCSZ01)|(1<<UCSZ00);  // 8-bit asynchronous mode 1 stop bit no parity
     UCSR0D = 0;     // no frame detection
     UCSR0B = (1<<RXCIE0)|(1<<RXEN0)|(1<<TXEN0); // enables the Tx and Rx, and Rx interrupt
 
     //USART1:
+#if F_CPU == 8000000
+    UBRR1 = 103; // 9600 baud @ 8MHz
+#elif F_CPU == 1000000
     UBRR1 = 12; // 9600 baud @ 1MHz
+#endif
     UCSR1A = (1<<U2X1);  // double USART speed
     UCSR1C = (1<<UCSZ11)|(1<<UCSZ10);  // 8-bit asynchronous mode 1 stop bit no parity
     UCSR1D = 0;     // no frame detection

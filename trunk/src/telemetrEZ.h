@@ -57,4 +57,6 @@
 // output to a bluetooth module
 //#define BLUETOOTH
 
+#define F_CPU 1000000
+
 
