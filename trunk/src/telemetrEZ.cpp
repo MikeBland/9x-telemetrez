@@ -74,34 +74,31 @@ int main() {
             flags.switchto9x = 1; // signal that a switch packet is ready
             UCSR1B |= (1<<UDRIE1); // enable interrupt to send bytes
             sei(); // enable interrupts
-            lowPinPORT ^= (1<<IO1); // toggle output for timing
         }
 
     // forward packet to 9x
         if(flags.FrskyRxBufferReady) { 
             if(NinexTx_RB.bytesFree() > 19) {  // wait for buffer to have free space
-                for(int i=0; i < numPktBytes9x; i++) { // add new packet to Tx buffer
+                for(int i=0; i < numPktBytesFrsky; i++) { // add new packet to Tx buffer
                   NinexTx_RB.push(FrskyRxBuf[i]);
                 }
-                UCSR1B |= (1<<UDRIE1); // enable interrupt to send bytes
                 cli();
+                UCSR1B |= (1<<UDRIE1); // enable interrupt to send bytes
                 flags.FrskyRxBufferReady = 0; // Signal Rx buffer is ok to receive
                 sei(); // enable interrupts
-                lowPinPORT ^= (1<<IO2); // toggle output for timing
             }
         }
 
     // forward packet to Frsky module
         if(flags.NinexRxBufferReady) { 
             if(FrskyTx_RB.bytesFree() > 19) {  // wait for buffer to have free space
-                for(int i=0; i < numPktBytesFrsky; i++) { // add new packet to Tx buffer
+                for(int i=0; i < numPktBytes9x; i++) { // add new packet to Tx buffer
                   FrskyTx_RB.push(NinexRxBuf[i]);
                 }
-                UCSR0B |= (1<<UDRIE0); // enable interrupt to send bytes
                 cli();
+                UCSR0B |= (1<<UDRIE0); // enable interrupt to send bytes
                 flags.NinexRxBufferReady = 0; // Signal Rx buffer is ok to receive
                 sei(); // enable interrupts
-                lowPinPORT ^= (1<<IO3); // toggle output for timing
             }
         }
 
@@ -113,7 +110,6 @@ int main() {
             cli();
             flags.PktReceived9x = 0;
             sei();
-            lowPinPORT ^= (1<<IO4); // toggle output for timing
         }
                 
     }
@@ -192,7 +188,7 @@ ISR(USART1__UDRE_vect) {
 #endif
                 break;
             }
-            if(FrskyTx_RB.empty()) { // if the buffer is empty
+            if(NinexTx_RB.empty()) { // if the buffer is empty
                     UCSR1B &= ~(1<<UDRIE1); // disable interrupt
                     break;
             }
@@ -281,8 +277,7 @@ ISR(USART0__RX_vect)
         case frskyDataStart:
           if (data == START_STOP) break; // Remain in userDataStart if possible 0x7e,0x7e doublet found.
 
-          if (numPktBytesFrsky < 19)
-            FrskyRxBuf[numPktBytesFrsky++] = data;
+          FrskyRxBuf[numPktBytesFrsky++] = data;
           dataState = frskyDataInFrame;
           break;
 
@@ -290,8 +285,7 @@ ISR(USART0__RX_vect)
           if (data == START_STOP) // end of frame detected
           {
             flags.FrskyRxBufferReady = 1;
-            FrskyRxBuf[numPktBytesFrsky] = data;
-            numPktBytesFrsky += 2; // add one extra for buffer copier
+            FrskyRxBuf[numPktBytesFrsky++] = data;
             dataState = frskyDataIdle;
             break;
           }
@@ -357,8 +351,7 @@ ISR(USART1__RX_vect)
           if (data == START_STOP) // end of frame detected
           {
             flags.NinexRxBufferReady = 1;
-            NinexRxBuf[numPktBytes9x] = data;
-            numPktBytes9x += 2; // add one extra for buffer copier
+            NinexRxBuf[numPktBytes9x++] = data;
             dataState9x = frskyDataIdle;
             break;
           }
@@ -399,6 +392,5 @@ ISR(USART1__RX_vect)
 
 ISR(TIMER0_COMPA_vect) {
     flags.sendSwitches = 1;
-    lowPinPORT ^= (1<<IO5); // toggle output for timing
 }
 

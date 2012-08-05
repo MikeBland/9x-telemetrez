@@ -5,7 +5,7 @@
 
 #include <avr/io.h>
 
-#define rb_size 60
+#define maxSize 60
 
 typedef class ring_buffer ring_buffer;
 class ring_buffer
@@ -19,9 +19,9 @@ class ring_buffer
 		void push(uint8_t c) volatile; // add an element to the array
 		uint8_t bytesFree() volatile; // return the number of free bytes
 	private:
-		uint8_t array[rb_size];
+		uint8_t array[maxSize];
 		uint8_t head, tail;
-		uint8_t freeBytes;
+		uint8_t count;
 };
 
 #endif
