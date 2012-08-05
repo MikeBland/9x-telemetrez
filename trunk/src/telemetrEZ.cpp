@@ -164,7 +164,7 @@ void setup(void) {
     // set up 20ms timer
     TCCR0A = (1<<WGM01); // CTC mode
     OCR0A = 78; // 20ms time out
-    TIMSK |= (1<<TOIE0); // enable interrupt
+    TIMSK |= (1<<OCIE0A); // enable interrupt
     TCNT0 = 0;
     TCCR0B = (1<<CS02); // /256 prescaler, start timer0
 
