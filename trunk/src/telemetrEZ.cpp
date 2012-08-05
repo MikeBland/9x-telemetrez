@@ -184,9 +184,9 @@ ISR(USART1__UDRE_vect) {
     switch(U1TXstate) {
         case TxIDLE:
             if(flags.switchto9x) { // if switch packet is ready to send
+                SwitchBuf_count = 0;
                 UDR1 = SwitchBuf[SwitchBuf_count++];
                 U1TXstate = sendSwitchpacket;
-                SwitchBuf_count = 0;
 #ifdef BLUETOOTH
                 pin16DDR &= ~(1<<IO16); // disable output to bluetooth
 #endif
