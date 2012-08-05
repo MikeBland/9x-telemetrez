@@ -184,8 +184,7 @@ ISR(USART1__UDRE_vect) {
     switch(U1TXstate) {
         case TxIDLE:
             if(flags.switchto9x) { // if switch packet is ready to send
-                UDR1 = NinexTx_RB.front(); // load next byte from buffer
-                NinexTx_RB.pop(); // remove the byte from the buffer
+                UDR1 = SwitchBuf[SwitchBuf_count++];
                 U1TXstate = sendSwitchpacket;
                 SwitchBuf_count = 0;
 #ifdef BLUETOOTH
