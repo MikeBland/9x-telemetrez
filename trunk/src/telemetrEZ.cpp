@@ -155,7 +155,7 @@ void setup(void) {
     UCSR1A = (1<<U2X1);  // double USART speed
     UCSR1C = (1<<UCSZ11)|(1<<UCSZ10);  // 8-bit asynchronous mode 1 stop bit no parity
     UCSR1D = 0;     // no frame detection
-    UCSR1B = (1<<RXCIE1)|(1<<RXEN1)|(1<<TXEN1); // enables the Tx and Rx, and Rx interrupt
+    UCSR1B = (1<<RXEN1)|(1<<TXEN1); // (1<<RXCIE1)| enables the Tx and Rx, and Rx interrupt
 
     // set up 20ms timer
     TCCR0A = (1<<WGM01); // CTC mode
@@ -305,6 +305,7 @@ ISR(USART0__RX_vect)
     } // if (FrskyRxBufferReady == 0)
   }
 }
+
 // ************************************************
 // *** Receive from 9x ***
 // ************************************************
@@ -370,14 +371,12 @@ ISR(USART1__RX_vect)
             }
           break;
         case nineXDataStart:
-            if (data == ESCAPE) break; // Remain in userDataStart if possible doublet found.
-
-          if (numPktBytes9x < 19)
-            NinexRxBuf[numPktBytes9x++] = data;
-          dataState9x = nineXDataInFrame;
+              if (data == ESCAPE) break; // Remain in userDataStart if possible doublet found.
+              NinexRxBuf[numPktBytes9x++] = data;
+              dataState9x = nineXDataInFrame;
           break;
         case nineXDataInFrame:
-            if (data == START_STOP) // end of frame detected
+            if (data == ESCAPE) // end of frame detected
           {
             flags.PktReceived9x = 1;
             dataState9x = frskyDataIdle;
@@ -392,5 +391,6 @@ ISR(USART1__RX_vect)
 
 ISR(TIMER0_COMPA_vect) {
     flags.sendSwitches = 1;
+    lowPinPORT ^= (1<<IO1);  // so we know the program is still running
 }
 
