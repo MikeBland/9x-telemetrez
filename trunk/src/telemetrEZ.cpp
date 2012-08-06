@@ -111,9 +111,14 @@ int main() {
             flags.PktReceived9x = 0;
             sei();
         }
-                
-    }
-}
+        
+        // sleep to save energy here
+        // by default sleep mode is idle
+        MCUCR |= (1<<SE); // enable sleep
+        __asm__ __volatile__ ( "sleep" "\n\t" :: );
+        MCUCR &= ~(1<<SE); // disable sleep
+    } // end while(1)
+} // end main
 
 //processor initalization
 void setup(void) {
@@ -125,8 +130,8 @@ void setup(void) {
     switch_DDR &= ~((1<<AIL_sw)|(1<<THR_sw)); // switches are inputs
     switch_PUE |= (1<<AIL_sw)|(1<<THR_sw); // enable pull-ups
 
-    lowPinDDR |= (1<<IO1)|(1<<IO2)|(1<<IO3)|(1<<IO4)|(1<<IO5);
-    lowPinPORT &= ~((1<<IO1)|(1<<IO2)|(1<<IO3)|(1<<IO4)|(1<<IO5));
+    lowPinDDR |= (1<<IO1)|(1<<IO2)|(1<<IO3)|(1<<IO4)|(1<<IO5); // all outputs
+    lowPinPORT &= ~((1<<IO1)|(1<<IO2)|(1<<IO3)|(1<<IO4)|(1<<IO5)); // all set low
 
 #ifdef BLUETOOTH
     pin16DDR &= ~(1<<IO16); // disable output to bluetooth
