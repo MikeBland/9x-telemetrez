@@ -15,8 +15,12 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#ifndef TELEMETREZ_H
+#define TELEMETREZ_H
+
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include "ringbuffer.h"
 
 // Frsky side is USART0
 // 9x side is USART1
@@ -62,4 +66,19 @@
 
 #include <util/setbaud.h> // this will calculate the proper config values
 
+#define PPMinDDR DDRC
+#define PPMinPUE PUEC
+#define PPMinPIN PINC
+#define PPMin 1
 
+struct flgRegs {
+    uint8_t sendSwitches:1; // trigger main to send switch states
+    uint8_t switchto9x:1;   // currently sending switch states to 9x
+    uint8_t sendingtoFrsky:1;   // currently sending frsky packet to frsky module
+    uint8_t PktReceived9x:1;    // packet received from 9x for here, needs processing
+    uint8_t FrskyRxBufferReady:1; // Frsky Packet received from Frsky module, forward to 9x
+    uint8_t NinexRxBufferReady:1; // Frsky Packet received from 9x, forward to Frsky module
+    uint8_t ppmReady:1; // startup check flag for ppm ready
+};
+
+#endif

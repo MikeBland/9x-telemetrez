@@ -18,6 +18,7 @@ class ring_buffer
 		void pop() volatile; // removes the first element from the array
 		void push(uint8_t c) volatile; // add an element to the array
 		uint8_t bytesFree() volatile; // return the number of free bytes
+        void clear() volatile; // clears the buffer
 	private:
 		uint8_t array[maxSize];
 		uint8_t head, tail;

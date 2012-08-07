@@ -7,6 +7,12 @@ ring_buffer::ring_buffer() {
     tail = maxSize - 1;
 	count=0;
 }
+// reset buffer clearing all data
+void ring_buffer::clear() volatile {
+    head = 0;
+    tail = maxSize - 1;
+    count = 0;
+}
 bool ring_buffer::full() const volatile {
     return (count == maxSize);
 }

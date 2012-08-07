@@ -41,7 +41,7 @@ TARGET = telemetrEZ
 OBJDIR = obj
 
 # List C++ source files here. (C dependencies are automatically generated.)
-CPPSRC = $(TARGET).cpp ringbuffer.cpp
+CPPSRC = $(TARGET).cpp ringbuffer.cpp setup.cpp ISRs.cpp TxISRs.cpp RxISRs.cpp 
 
 #--------------------------------------------------------------------------------
 
@@ -79,10 +79,10 @@ EXTRAINCDIRS =
 CSTANDARD = -std=gnu99
 
 # Place -D or -U options here for C sources
-CDEFS = -DF_CPU=$(F_CPU)UL
+#CDEFS = -DF_CPU=$(F_CPU)UL
 
 # Place -D or -U options here for C++ sources
-CPPDEFS = -DF_CPU=$(F_CPU)UL
+#CPPDEFS = -DF_CPU=$(F_CPU)UL
 #CPPDEFS += -D__STDC_LIMIT_MACROS
 #CPPDEFS += -D__STDC_CONSTANT_MACROS
 
