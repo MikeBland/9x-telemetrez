@@ -49,7 +49,7 @@
 
 #define pin16DDR DDRB
 #define pin16PORT PORTB
-#define pin16PIN PINB
+#define pin16PIN PINB // use this pin as output only, see errata
 #define pin16PUE PUEB
 #define IO16 3 // PB3
 
