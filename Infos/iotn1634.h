@@ -299,6 +299,8 @@
 #define PCINT9  1
 #define PCINT10 2
 #define PCINT11 3
+
+#define PCMSK2  _SFR_IO8(0x29)
 #define PCINT12 0
 #define PCINT13 1
 #define PCINT14 2
