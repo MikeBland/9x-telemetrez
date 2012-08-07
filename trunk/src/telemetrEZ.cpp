@@ -47,7 +47,6 @@ int main() {
     CCP = 0xD8; // Unlock protected IO signature
     CLKPR = 0; // run at 8MHz
 #endif
-
     flags.sendSwitches = 1; // the very first thing it will do
                             // is send the switch states to the 9x
     setup();
@@ -111,12 +110,12 @@ int main() {
             flags.PktReceived9x = 0;
             sei();
         }
-        
+        lowPinPORT ^= (1<<IO2); // timing test for main
         // sleep to save energy here
         // by default sleep mode is idle
         MCUCR |= (1<<SE); // enable sleep
         __asm__ __volatile__ ( "sleep" "\n\t" :: );
-        MCUCR &= ~(1<<SE); // disable sleep
+        MCUCR &= ~(1<<SE); // disable sleep */
     } // end while(1)
 } // end main
 
@@ -164,10 +163,18 @@ void setup(void) {
 
     // set up 20ms timer
     TCCR0A = (1<<WGM01); // CTC mode
+#if F_CPU == 8000000
+    OCR0A = 156; // 20ms time out
+#elif F_CPU == 1000000
     OCR0A = 78; // 20ms time out
+#endif
     TIMSK |= (1<<OCIE0A); // enable interrupt
     TCNT0 = 0;
+#if F_CPU == 8000000
+    TCCR0B = (1<<CS02)|(1<<CS00); // /1024 prescaler, start timer0
+#elif F_CPU == 1000000
     TCCR0B = (1<<CS02); // /256 prescaler, start timer0
+#endif
 
     sei();
 }
