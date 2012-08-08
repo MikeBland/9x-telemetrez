@@ -7,6 +7,7 @@ ISR(TIMER0_COMPA_vect) {
 }
 
 ISR(TIMER1_CAPT_vect) { // track changes to PPM stream
+#ifdef CLOCK_ADJUST
     static uint16_t startTime;
 
     if(TCCR1B & (1<<ICES1)) {
@@ -20,6 +21,7 @@ ISR(TIMER1_CAPT_vect) { // track changes to PPM stream
         TCCR1B |= (1<<ICES1);  // next capture will be on falling edge
     }
     TIFR |= (1<<ICF1); // clear the flag
+#endif
     lastPPMchange = systemMillis;
 }
 

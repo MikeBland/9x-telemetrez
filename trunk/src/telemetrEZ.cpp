@@ -54,7 +54,7 @@ int main() {
     SwitchBuf[3] = 0x1B;
 
     sendSwitchesCount = systemMillis + 3;
-    lastPPMchange = systemMillis + 10; // 50ms into the future
+    lastPPMchange = systemMillis + 1000; // 5s into the future
 
     while(1) {
     // send switch values every 20ms
@@ -84,6 +84,7 @@ int main() {
             // need power cycle after programming to come back
             while(1); // endless loop
         }
+#ifdef CLOCK_ADJUST
     // calibrate internal oscillator from PPM sync pulse
         if(flags.ppmReady) {
             cli();
@@ -113,6 +114,7 @@ int main() {
                 }
             }
         }
+#endif
     // forward packet to 9x
         if(flags.FrskyRxBufferReady) { 
             if(NinexTx_RB.bytesFree() > 19) {  // wait for buffer to have free space
@@ -148,6 +150,7 @@ int main() {
             flags.PktReceived9x = 0;
             sei();
         }
+#ifdef CLOCK_ADJUST
     // need to wait until the pulse stream actually start before we try making adjustments
     // that is about 5 seconds with the splash screen enabled
         if(!(flags.captureStarted) && (systemMillis > 1000)) {
@@ -157,6 +160,7 @@ int main() {
             cli();
             flags.captureStarted = 1;
         }
+#endif
         lowPinPORT ^= (1<<IO2); // timing test for main
     // sleep to save energy here
         // by default sleep mode is idle
