@@ -79,6 +79,7 @@ struct flgRegs {
     uint8_t FrskyRxBufferReady:1; // Frsky Packet received from Frsky module, forward to 9x
     uint8_t NinexRxBufferReady:1; // Frsky Packet received from 9x, forward to Frsky module
     uint8_t ppmReady:1; // startup check flag for ppm ready
+    uint8_t captureStarted:1; // wait to start adjusting the clock speed
 };
 
 #endif

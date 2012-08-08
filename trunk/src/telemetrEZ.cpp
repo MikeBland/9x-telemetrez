@@ -76,7 +76,7 @@ int main() {
             sei(); // enable interrupts
         }
     // check if ppm stream is active, stop if PPM lost
-        if((lastPPMchange + 4) < systemMillis) { // it has been > 20 ms since last change
+        if((lastPPMchange + 6) < systemMillis) { // it has been > 30 ms since last change
             cli(); // stop interrupts
             // stop Tx and Rx
             UCSR0B &= ~((1<<RXEN0)|(1<<TXEN0)|(1<<UDRIE0)|(1<<RXCIE0)); // disable interrupts
@@ -148,8 +148,17 @@ int main() {
             flags.PktReceived9x = 0;
             sei();
         }
+    // need to wait until the pulse stream actually start before we try making adjustments
+    // that is about 5 seconds with the splash screen enabled
+        if(!(flags.captureStarted) && (systemMillis > 1000)) {
+            // set up timer 1 for input capture
+            TIMSK |= (1<<ICIE1); // enable interrupt
+            TCCR1B |= (1<<ICES1)|(1<<CS10); // rising edge interrupt, start timer
+            cli();
+            flags.captureStarted = 1;
+        }
         lowPinPORT ^= (1<<IO2); // timing test for main
-        // sleep to save energy here
+    // sleep to save energy here
         // by default sleep mode is idle
         MCUCR |= (1<<SE); // enable sleep
         __asm__ __volatile__ ( "sleep" "\n\t" :: );
