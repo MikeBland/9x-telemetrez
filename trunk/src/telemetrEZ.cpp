@@ -85,6 +85,16 @@ int main() {
             while(1); // endless loop
         }
 #ifdef CLOCK_ADJUST
+    // need to wait until the pulse stream actually start before we try making adjustments
+    // that is about 5 seconds with the splash screen enabled
+        if(!(flags.captureStarted) && (systemMillis > 1000)) {
+            // set up timer 1 for input capture
+            TIMSK |= (1<<ICIE1); // enable interrupt
+            TCCR1B |= (1<<ICES1)|(1<<CS10); // rising edge interrupt, start timer
+            cli();
+            flags.captureStarted = 1;
+            sei();
+        }
     // calibrate internal oscillator from PPM sync pulse
         if(flags.ppmReady) {
             cli();
@@ -150,17 +160,6 @@ int main() {
             flags.PktReceived9x = 0;
             sei();
         }
-#ifdef CLOCK_ADJUST
-    // need to wait until the pulse stream actually start before we try making adjustments
-    // that is about 5 seconds with the splash screen enabled
-        if(!(flags.captureStarted) && (systemMillis > 1000)) {
-            // set up timer 1 for input capture
-            TIMSK |= (1<<ICIE1); // enable interrupt
-            TCCR1B |= (1<<ICES1)|(1<<CS10); // rising edge interrupt, start timer
-            cli();
-            flags.captureStarted = 1;
-        }
-#endif
         lowPinPORT ^= (1<<IO2); // timing test for main
     // sleep to save energy here
         // by default sleep mode is idle
