@@ -59,7 +59,7 @@
 
 // uncomment the following line to enable piggybacked Frsky
 // output to a bluetooth module
-#define BLUETOOTH
+//#define BLUETOOTH
 
 #define F_CPU 1000000 // CPU speed at run time
 #define BAUD 9600  // USART Baud rate
@@ -70,7 +70,7 @@
 #define PPMinPUE PUEC
 #define PPMinPIN PINC
 #define PPMin 1
-#define CLOCK_ADJUST // to use self calibrating clock (uses PPM stream)
+//#define CLOCK_ADJUST // to use self calibrating clock (uses PPM stream)
 
 struct flgRegs {
     uint8_t sendSwitches:1; // trigger main to send switch states
