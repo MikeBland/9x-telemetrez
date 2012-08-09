@@ -1,0 +1,9 @@
+#labels Featured
+This page explains the programming detection feature of the firmware
+
+= 9x programming detection =
+
+==This page still needs work==
+
+The programming detection feature works by monitoring the ppm line for high to low transitions.  If a transition hasn't occurred in a certain amount of time (ppm signal isn't being sent) then all communications from the TelemetrEZ are stopped.  The Rx and Tx pins are put into a high-impedance mode so they don't interfere with the programming process.
+To make the TelemetrEZ start communicating again simply power cycle the radio, which will reset the processors.
