@@ -96,6 +96,8 @@ int main() {
             sei();
         }
     // calibrate internal oscillator from PPM sync pulse
+    // NOTE: osccal register has a much wider adjustment range than I thought
+    // the oscillator should change ~33kHz per LSB
         if(flags.ppmReady) {
             cli();
             flags.ppmReady = 0;
@@ -109,21 +111,28 @@ int main() {
             t = (t + PPMpulseTime) >> 1;
             // end filter algorithm
 
-            if(++clockUpdateCount == 8) { // don't change the clock so often
+            if(++clockUpdateCount == 32) { // don't change the clock so often
+                clockUpdateCount = 0; // reset counter
                 //PPMpulseTime @ 1MHZ pulse time is equal to the pulse length in us
+#if F_CPU == 8000000
+                uint8_t error = (s_Filt % 50) / 8;
+#else
                 uint8_t error = s_Filt % 50;
-                if(error != 25) { // because if it is 25 we don't know which way to make the correction
-                    if(error > 25) { // clock is running slow
-                        if(OSCCAL0 < (255-error)) // don't want to wrap around
-                            OSCCAL0 += 50 - error; // increasing OSCCAL will speed up the oscillator
-                    } else {
-                        // clock is fast so slow if down
-                        if(OSCCAL0 > error) // don't want to wrap around
-                          OSCCAL0 -= error;
-                    }
-                }
-            }
-        }
+#endif
+                if((error > 10) && (error < 40)) {
+                    if(error != 25) { // because if it is 25 we don't know which way to make the correction
+                     if(error > 25) { // clock is running slow
+                         if(OSCCAL0 < 255) // don't want to wrap around
+                           OSCCAL0++; // increasing OSCCAL will speed up the oscillator
+                     } else {
+                      // clock is fast so slow if down
+                         if(OSCCAL0 > 0) // don't want to wrap around
+                           OSCCAL0--;
+                     } // end error > 25
+                    }   // end error != 25
+                } // end error within range
+            }   // end clock update
+        }   // end flags.ppmReady
 #endif
     // forward packet to 9x
         if(flags.FrskyRxBufferReady) { 
