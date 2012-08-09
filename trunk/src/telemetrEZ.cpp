@@ -119,7 +119,7 @@ int main() {
 #else
                 uint8_t error = s_Filt % 50;
 #endif
-                if((error > 10) && (error < 40)) {
+                if((error > 3) && (error < 47)) { // 3 is approx. 1%
                     if(error != 25) { // because if it is 25 we don't know which way to make the correction
                      if(error > 25) { // clock is running slow
                          if(OSCCAL0 < 255) // don't want to wrap around
