@@ -82,6 +82,7 @@ int main() {
             UCSR0B &= ~((1<<RXEN0)|(1<<TXEN0)|(1<<UDRIE0)|(1<<RXCIE0)); // disable interrupts
             UCSR1B &= ~((1<<RXEN1)|(1<<TXEN1)|(1<<UDRIE1)|(1<<RXCIE1)); // turn off Tx and Rx
             // need power cycle after programming to come back
+            lowPinPORT |= (1<<IO3); // this pin will go high if it thinks the 9x is being programmed
             while(1); // endless loop
         }
 #ifdef CLOCK_ADJUST
