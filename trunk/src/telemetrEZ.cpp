@@ -18,6 +18,7 @@
 // The Frsky Rx and decode ISR functions below were taken from the Er9x project
 
 #include "telemetrEZ.h"
+#include <avr/wdt.h>
 
 // *** Buffers ***
 #define BufSize 20
@@ -48,6 +49,9 @@ int main() {
                             // is send the switch states to the 9x
     setup();
 
+    WDTCSR |= (1<<WDP3)|(1<<WDP0);  // set 64ms timeout for watchdog
+    WDTCSR |= (1<<WDE);  // enable the watchdog
+
     // these never change, so they can be initalized here
     SwitchBuf[0] = 0x1B; // switches escape character
     SwitchBuf[1] = 0x01; // number of bytes in packet
@@ -57,6 +61,7 @@ int main() {
     lastPPMchange = systemMillis + 1000; // 5s into the future
 
     while(1) {
+	wdt_reset(); // reset the watchdog timer
     // send switch values every 20ms
         if(sendSwitchesCount < systemMillis) {
             sendSwitchesCount += 4; // send every 20ms
