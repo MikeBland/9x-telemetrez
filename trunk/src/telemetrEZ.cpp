@@ -49,8 +49,8 @@ int main() {
                             // is send the switch states to the 9x
     setup();
 
-    WDTCSR |= (1<<WDP3)|(1<<WDP0);  // set 64ms timeout for watchdog
-    WDTCSR |= (1<<WDE);  // enable the watchdog
+//    WDTCSR |= (1<<WDP3)|(1<<WDP0);  // set 64ms timeout for watchdog
+//    WDTCSR |= (1<<WDE);  // enable the watchdog
 
     // these never change, so they can be initalized here
     SwitchBuf[0] = 0x1B; // switches escape character
@@ -61,7 +61,7 @@ int main() {
     lastPPMchange = systemMillis + 1000; // 5s into the future
 
     while(1) {
-	wdt_reset(); // reset the watchdog timer
+//	wdt_reset(); // reset the watchdog timer
     // send switch values every 20ms
         if(sendSwitchesCount < systemMillis) {
             sendSwitchesCount += 4; // send every 20ms
@@ -90,7 +90,6 @@ int main() {
             lowPinPORT |= (1<<IO3); // this pin will go high if it thinks the 9x is being programmed
             while(1); // endless loop
         }
-#ifdef CLOCK_ADJUST
     // need to wait until the pulse stream actually start before we try making adjustments
     // that is about 5 seconds with the splash screen enabled
         if(!(flags.captureStarted) && (systemMillis > 1000)) {
@@ -101,6 +100,7 @@ int main() {
             flags.captureStarted = 1;
             sei();
         }
+#ifdef CLOCK_ADJUST
     // calibrate internal oscillator from PPM sync pulse
     // NOTE: osccal register has a much wider adjustment range than I thought
     // the oscillator should change ~33kHz per LSB
@@ -140,6 +140,7 @@ int main() {
             }   // end clock update
         }   // end flags.ppmReady
 #endif
+
     // forward packet to 9x
         if(flags.FrskyRxBufferReady) { 
             if(NinexTx_RB.bytesFree() > 19) {  // wait for buffer to have free space

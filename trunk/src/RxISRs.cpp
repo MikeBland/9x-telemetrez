@@ -85,8 +85,8 @@ ISR(USART1__RX_vect)
   
   static uint8_t dataState9x = frskyDataIdle;
 
-  stat = UCSR0A; // USART control and Status Register 0 A
-  data = UDR0; // USART data register 0
+  stat = UCSR1A; // USART control and Status Register 0 A
+  data = UDR1; // USART data register 0
 
   if (stat & ((1 << FE0) | (1 << DOR0) | (1 << UPE0)))
   { // discard buffer and start fresh on any comms error

@@ -61,7 +61,7 @@
 // output to a bluetooth module
 //#define BLUETOOTH
 
-#define F_CPU 1000000 // CPU speed at run time
+#define F_CPU 8000000 // CPU speed at run time
 #define BAUD 9600  // USART Baud rate
 
 #include <util/setbaud.h> // this will calculate the proper config values

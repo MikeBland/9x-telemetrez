@@ -14,10 +14,35 @@ void setup(void) {
     lowPinDDR |= (1<<IO1)|(1<<IO2)|(1<<IO3)|(1<<IO4)|(1<<IO5); // all outputs
     lowPinPORT &= ~((1<<IO1)|(1<<IO2)|(1<<IO3)|(1<<IO4)|(1<<IO5)); // all set low
 
+    //USART0:  Frsky side USART
+    UBRR0H = UBRRH_VALUE;
+    UBRR0L = UBRRL_VALUE;
+#if USE_2X
+    UCSR0A = (1<<U2X0);  // double USART speed
+#else
+    UCSR0A = 0;  // single USART speed
+#endif
+    UCSR0C = (1<<UCSZ01)|(1<<UCSZ00);  // 8-bit asynchronous mode 1 stop bit no parity
+    UCSR0D = 0;     // no frame detection
+    UCSR0B = (1<<RXCIE0)|(1<<RXEN0)|(1<<TXEN0); // enables the Tx and Rx, and Rx interrupt
+
+    //USART1: 9x side USART
+    UBRR1H = UBRRH_VALUE;
+    UBRR1L = UBRRL_VALUE;
+#if USE_2X
+    UCSR1A = (1<<U2X1);  // double USART speed
+#else
+    UCSR1A = 0;  // single USART speed
+#endif
+    UCSR1C = (1<<UCSZ11)|(1<<UCSZ10);  // 8-bit asynchronous mode 1 stop bit no parity
+    UCSR1D = 0;     // no frame detection
+    UCSR1B = (1<<RXEN1)|(1<<RXCIE1); // enables the Rx, and Rx interrupt
+
     // check for PPM signal low before continuing
     // this makes sure the m64 is running
     PPMinPUE |= (1<<PPMin); // enable internal pullup
     PPMinDDR &= ~(1<<PPMin); // PPM input pin
+/*
     TCCR0A = (1<<WGM01); // CTC mode
     flags.ppmReady = 0;
     do {
@@ -37,7 +62,8 @@ void setup(void) {
       TCCR0B = 0; // stop timer
       TIFR |= OCF0A; // clear interrupt flag
     } while(!(flags.ppmReady));
-
+// */
+    UCSR1B |= (1<<TXEN1); // enable 9x side Tx
 
 #ifdef BLUETOOTH
     pin16DDR &= ~(1<<IO16); // disable output to bluetooth
@@ -45,30 +71,6 @@ void setup(void) {
                             // this chip, so high-impedance output should not be driven
     pin16PUE &= ~(1<<IO16); // make sure pull-up is off
 #endif
-
-    //USART0:
-    UBRR0H = UBRRH_VALUE;
-    UBRR0L = UBRRL_VALUE;
-#if USE_2X
-    UCSR0A = (1<<U2X0);  // double USART speed
-#else
-    UCSR0A = 0;  // single USART speed
-#endif
-    UCSR0C = (1<<UCSZ01)|(1<<UCSZ00);  // 8-bit asynchronous mode 1 stop bit no parity
-    UCSR0D = 0;     // no frame detection
-    UCSR0B = (1<<RXCIE0)|(1<<RXEN0)|(1<<TXEN0); // enables the Tx and Rx, and Rx interrupt
-
-    //USART1:
-    UBRR1H = UBRRH_VALUE;
-    UBRR1L = UBRRL_VALUE;
-#if USE_2X
-    UCSR1A = (1<<U2X1);  // double USART speed
-#else
-    UCSR1A = 0;  // single USART speed
-#endif
-    UCSR1C = (1<<UCSZ11)|(1<<UCSZ10);  // 8-bit asynchronous mode 1 stop bit no parity
-    UCSR1D = 0;     // no frame detection
-    UCSR1B = (1<<RXEN1)|(1<<TXEN1)|(1<<RXCIE1); // enables the Tx and Rx, and Rx interrupt
 
     // set up 20ms timer
     TCCR0A = (1<<WGM01); // CTC mode
