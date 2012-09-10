@@ -98,16 +98,6 @@ int main() {
             lowPinPORT &= ~(1<<IO3);
         }
             
-    // need to wait until the pulse stream actually start before we try making adjustments
-    // that is about 5 seconds with the splash screen enabled
-        if(!(flags.captureStarted) && (systemMillis > 1000)) {
-            // set up timer 1 for input capture
-            TIMSK |= (1<<ICIE1); // enable interrupt
-            TCCR1B |= (1<<ICES1)|(1<<CS10); // rising edge interrupt, start timer
-            cli();
-            flags.captureStarted = 1;
-            sei();
-        }
 #ifdef CLOCK_ADJUST
     // calibrate internal oscillator from PPM sync pulse
     // NOTE: osccal register has a much wider adjustment range than I thought

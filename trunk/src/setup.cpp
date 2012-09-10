@@ -62,6 +62,9 @@ void setup(void) {
     OCR0A = 78; // 5ms time out
     TCCR0B = (1<<CS01)|(1<<CS00); // /64 prescaler, start timer0
 #endif
+    // set up timer 1 for input capture
+    TIMSK |= (1<<ICIE1); // enable interrupt
+    TCCR1B |= (1<<ICES1)|(1<<CS10); // rising edge interrupt, start timer
 
     sei();
 }
