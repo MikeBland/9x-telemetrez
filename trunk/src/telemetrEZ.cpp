@@ -31,6 +31,7 @@ uint32_t sendSwitchesCount;
 volatile uint32_t lastPPMchange = 0;
 volatile uint32_t PPMpulseTime;
 volatile uint32_t systemMillis = 0;
+uint8_t sendTo9xEnable = 0; // It is ok to send packets to the 9x
 
 volatile ring_buffer FrskyTx_RB; // ring buffers for the pass thru
 volatile ring_buffer NinexTx_RB;
@@ -63,7 +64,7 @@ int main() {
     while(1) {
 //	wdt_reset(); // reset the watchdog timer
     // send switch values every 20ms
-        if(sendSwitchesCount < systemMillis) {
+        if(sendTo9xEnable && (sendSwitchesCount < systemMillis)) {
             sendSwitchesCount += 4; // send every 20ms
             uint8_t tmp = 0b11000000; // setup for sending
             if(bit_is_clear(switch_PIN, AIL_sw)) // switch is active
@@ -82,14 +83,19 @@ int main() {
         }
     // check if ppm stream is active, stop if PPM lost
         if((lastPPMchange + 6) < systemMillis) { // it has been > 30 ms since last change
-            cli(); // stop interrupts
-            // stop Tx and Rx
-            UCSR0B &= ~((1<<RXEN0)|(1<<TXEN0)|(1<<UDRIE0)|(1<<RXCIE0)); // disable interrupts
-            UCSR1B &= ~((1<<RXEN1)|(1<<TXEN1)|(1<<UDRIE1)|(1<<RXCIE1)); // turn off Tx and Rx
+            // stop Tx to 9x
+            UCSR1B &= ~((1<<TXEN1)|(1<<UDRIE1)); // turn off Tx to 9x
             // need power cycle after programming to come back
             lowPinPORT |= (1<<IO3); // this pin will go high if it thinks the 9x is being programmed
-            while(1); // endless loop
+            sendTo9xEnable = 0; // disable sending to 9x side
+            NinexTx_RB.clear(); // clear the buffer
+        } else {
+            // ppm is back, reenable Tx to 9x
+            sendTo9xEnable = 1;
+            UCSR1B |= (1<<TXEN1); // reenable the Tx
+            lowPinPORT &= ~(1<<IO3);
         }
+            
     // need to wait until the pulse stream actually start before we try making adjustments
     // that is about 5 seconds with the splash screen enabled
         if(!(flags.captureStarted) && (systemMillis > 1000)) {
@@ -142,15 +148,21 @@ int main() {
 #endif
 
     // forward packet to 9x
-        if(flags.FrskyRxBufferReady) { 
-            if(NinexTx_RB.bytesFree() > 19) {  // wait for buffer to have free space
-                for(int i=0; i < numPktBytesFrsky; i++) { // add new packet to Tx buffer
-                  NinexTx_RB.push(FrskyRxBuf[i]);
+        if(flags.FrskyRxBufferReady) {
+            if(sendTo9xEnable) {
+                if(NinexTx_RB.bytesFree() > 19) {  // wait for buffer to have free space
+                    for(int i=0; i < numPktBytesFrsky; i++) { // add new packet to Tx buffer
+                      NinexTx_RB.push(FrskyRxBuf[i]);
+                    }
+                    cli();
+                    UCSR1B |= (1<<UDRIE1); // enable interrupt to send bytes
+                    flags.FrskyRxBufferReady = 0; // Signal Rx buffer is ok to receive
+                    sei(); // enable interrupts
                 }
+            } else { // cannot send to 9x, just dump the packet
                 cli();
-                UCSR1B |= (1<<UDRIE1); // enable interrupt to send bytes
                 flags.FrskyRxBufferReady = 0; // Signal Rx buffer is ok to receive
-                sei(); // enable interrupts
+                sei();
             }
         }
 

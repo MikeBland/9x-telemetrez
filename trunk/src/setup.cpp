@@ -14,6 +14,9 @@ void setup(void) {
     lowPinDDR |= (1<<IO1)|(1<<IO2)|(1<<IO3)|(1<<IO4)|(1<<IO5); // all outputs
     lowPinPORT &= ~((1<<IO1)|(1<<IO2)|(1<<IO3)|(1<<IO4)|(1<<IO5)); // all set low
 
+    PPMinPUE |= (1<<PPMin); // enable internal pullup
+    PPMinDDR &= ~(1<<PPMin); // PPM input pin
+
     //USART0:  Frsky side USART
     UBRR0H = UBRRH_VALUE;
     UBRR0L = UBRRL_VALUE;
@@ -38,31 +41,7 @@ void setup(void) {
     UCSR1D = 0;     // no frame detection
     UCSR1B = (1<<RXEN1)|(1<<RXCIE1); // enables the Rx, and Rx interrupt
 
-    // check for PPM signal low before continuing
-    // this makes sure the m64 is running
-    PPMinPUE |= (1<<PPMin); // enable internal pullup
-    PPMinDDR &= ~(1<<PPMin); // PPM input pin
-/*
-    TCCR0A = (1<<WGM01); // CTC mode
-    flags.ppmReady = 0;
-    do {
-        while(PPMinPIN & (1<<PPMin)); // wait for pin to go low
-      TCNT0 = 0;
-      // set up 10ms timer
-#if F_CPU == 8000000
-      OCR0A = 78; // 10ms time out
-      TCCR0B = (1<<CS02)|(1<<CS00); // /1024 prescaler, start timer0
-#elif F_CPU == 1000000
-      OCR0A = 156; // 10ms time out
-      TCCR0B = (1<<CS02); // /64 prescaler, start timer0
-#endif
-      while( !(TIFR & (1<<OCF0A)) ); // wait 10ms
-      if(PPMinPIN & (1<<PPMin))
-          flags.ppmReady = 1; // exit loop if pin is still low
-      TCCR0B = 0; // stop timer
-      TIFR |= OCF0A; // clear interrupt flag
-    } while(!(flags.ppmReady));
-// */
+    while(PPMinPIN & (1<<PPMin)); // wait for PPM pin to go low
     UCSR1B |= (1<<TXEN1); // enable 9x side Tx
 
 #ifdef BLUETOOTH
