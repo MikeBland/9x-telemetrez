@@ -82,7 +82,9 @@ int main() {
             sei(); // enable interrupts
         }
     // check if ppm stream is active, stop if PPM lost
-        if((lastPPMchange + 6) < systemMillis) { // it has been > 30 ms since last change
+        if(((lastPPMchange + 6) < systemMillis) && (PPMinPIN & (1<<PPMin)) ) { 
+            // it has been > 30 ms since last change and the PPM pin is high
+            // if the 9x is in simulator or student mode the PPM line will be low
             // stop Tx to 9x
             UCSR1B &= ~((1<<TXEN1)|(1<<UDRIE1)); // turn off Tx to 9x
             // need power cycle after programming to come back
