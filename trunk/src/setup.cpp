@@ -55,16 +55,13 @@ void setup(void) {
     TCCR0A = (1<<WGM01); // CTC mode
     TIMSK |= (1<<OCIE0A); // enable interrupt
     TCNT0 = 0;
-#if F_CPU == 8000000
+
     OCR0A = 156; // 5ms time out
     TCCR0B = (1<<CS02); // /256 prescaler, start timer0
-#elif F_CPU == 1000000
-    OCR0A = 78; // 5ms time out
-    TCCR0B = (1<<CS01)|(1<<CS00); // /64 prescaler, start timer0
-#endif
+
     // set up timer 1 for input capture
     TIMSK |= (1<<ICIE1); // enable interrupt
-    TCCR1B |= (1<<ICES1)|(1<<CS10); // rising edge interrupt, start timer
+    TCCR1B |= (1<<CS10); // start timer 1:1, interrupt on falling edge
 
     sei();
 }

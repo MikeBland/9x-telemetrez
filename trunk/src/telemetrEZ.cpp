@@ -114,23 +114,15 @@ int main() {
             flags.ppmReady = 0;
             sei();
 
-            // filter algorithm from Er9x
-            static uint16_t t;
-            static uint16_t s_Filt;
-            s_Filt = (s_Filt/2 + t) & 0xFFFE; //gain of 2 on last result - clear last bit
-            t = (t + t) >> 1;
-            t = (t + PPMpulseTime) >> 1;
-            // end filter algorithm
-
             if(++clockUpdateCount == 32) { // don't change the clock so often
                 clockUpdateCount = 0; // reset counter
                 //PPMpulseTime @ 1MHZ pulse time is equal to the pulse length in us
-#if F_CPU == 8000000
-                uint8_t error = (s_Filt % 50) / 8;
-#else
-                uint8_t error = s_Filt % 50;
-#endif
-                if((error > 3) && (error < 47)) {
+                cli(); // protect from changing in interrupt
+                uint16_t pulse = PPMpulseTime;
+                sei();
+                uint8_t error = (pulse % 50) / 8;
+
+                if((error > 2) && (error < 48)) { 
                     if(error != 25) { // because if it is 25 we don't know which way to make the correction
                      if(error > 25) { // clock is running slow
                          if(OSCCAL0 < 255) // don't want to wrap around
