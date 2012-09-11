@@ -31,6 +31,7 @@ uint32_t sendSwitchesCount;
 volatile uint32_t lastPPMchange = 0;
 volatile uint16_t PPMpulseTime;
 volatile uint32_t systemMillis = 0;
+uint32_t reenableTimer;
 uint8_t sendTo9xEnable = 0; // It is ok to send packets to the 9x
 
 volatile ring_buffer FrskyTx_RB; // ring buffers for the pass thru
@@ -91,14 +92,17 @@ int main() {
             lowPinPORT |= (1<<IO3); // this pin will go high if it thinks the 9x is being programmed
             sendTo9xEnable = 0; // disable sending to 9x side
             NinexTx_RB.clear(); // clear the buffer
+            reenableTimer = systemMillis + 3000ul;
         } else {
             if(!sendTo9xEnable) {
                 // ppm is back, reenable Tx to 9x
-                sendTo9xEnable = 1;
-                UCSR1B |= (1<<TXEN1)|(1<<UDRIE1); // reenable the Tx
-                sendSwitchesCount = systemMillis + 3;
-                lowPinPORT &= ~(1<<IO3);
-            }
+                if(reenableTimer < systemMillis) { // wait 15 seconds before sending to 9x again
+                    sendTo9xEnable = 1;
+                    UCSR1B |= (1<<TXEN1)|(1<<UDRIE1); // reenable the Tx
+                    sendSwitchesCount = systemMillis + 3;
+                    lowPinPORT &= ~(1<<IO3);
+                } // end if reenableTimer
+            } // end if !sendTo9xEnable
         }
             
 #ifdef CLOCK_ADJUST
