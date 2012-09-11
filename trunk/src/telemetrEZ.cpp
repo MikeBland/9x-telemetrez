@@ -29,7 +29,7 @@ volatile uint8_t numPktBytesFrsky = 0;
 volatile uint8_t numPktBytes9x = 0;
 uint32_t sendSwitchesCount;
 volatile uint32_t lastPPMchange = 0;
-volatile uint32_t PPMpulseTime;
+volatile uint16_t PPMpulseTime;
 volatile uint32_t systemMillis = 0;
 uint8_t sendTo9xEnable = 0; // It is ok to send packets to the 9x
 
@@ -92,10 +92,13 @@ int main() {
             sendTo9xEnable = 0; // disable sending to 9x side
             NinexTx_RB.clear(); // clear the buffer
         } else {
-            // ppm is back, reenable Tx to 9x
-            sendTo9xEnable = 1;
-            UCSR1B |= (1<<TXEN1); // reenable the Tx
-            lowPinPORT &= ~(1<<IO3);
+            if(!sendTo9xEnable) {
+                // ppm is back, reenable Tx to 9x
+                sendTo9xEnable = 1;
+                UCSR1B |= (1<<TXEN1)|(1<<UDRIE1); // reenable the Tx
+                sendSwitchesCount = systemMillis + 3;
+                lowPinPORT &= ~(1<<IO3);
+            }
         }
             
 #ifdef CLOCK_ADJUST
@@ -123,7 +126,7 @@ int main() {
 #else
                 uint8_t error = s_Filt % 50;
 #endif
-                if((error > 3) && (error < 47)) { // 3 is approx. 1%
+                if((error > 3) && (error < 47)) {
                     if(error != 25) { // because if it is 25 we don't know which way to make the correction
                      if(error > 25) { // clock is running slow
                          if(OSCCAL0 < 255) // don't want to wrap around

@@ -47,6 +47,9 @@ ISR(USART1__UDRE_vect) {
             UDR1 = NinexTx_RB.front(); // load next byte from buffer
             NinexTx_RB.pop(); // remove the byte from the buffer
             break;
+        default:
+            U1TXstate = TxIDLE;
+            break;
     } // switch
 }
 

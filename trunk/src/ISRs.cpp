@@ -14,13 +14,13 @@ ISR(TIMER1_CAPT_vect) { // track changes to PPM stream
     static uint8_t startDelay = 0;
 
     if(++startDelay > 32) { // the first several pulses cannot be used for setting the clock
-        startDelay--;
-        if(TCCR1B & (1<<ICES1)) {
+        startDelay = 33;
+        if(TCCR1B && (1<<ICES1)) {
             // pin is high, just passed the end of a sync pulse
-            if(TIFR & (1<<TOV1)) { // timer overflowed result might be wrong, so skip this one
+            if(TIFR && (1<<TOV1)) { // timer overflowed result might be wrong, so skip this one
                 TCCR1B &= ~(1<<ICES1);  // next capture will be on falling edge
             } else {
-                PPMpulseTime = ICR1 - startTime; // get time of pulse
+                PPMpulseTime = (uint16_t)ICR1 - startTime; // get time of pulse
                 TCCR1B &= ~(1<<ICES1);  // next capture will be on falling edge
                 flags.ppmReady = 1; // signal main
             }
