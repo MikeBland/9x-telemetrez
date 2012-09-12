@@ -32,7 +32,7 @@ volatile uint32_t lastPPMchange = 0;
 volatile uint16_t PPMpulseTime;
 volatile uint32_t systemMillis = 0;
 uint32_t reenableTimer;
-uint8_t sendTo9xEnable = 0; // It is ok to send packets to the 9x
+volatile uint8_t sendTo9xEnable = 1; // It is ok to send packets to the 9x
 
 volatile ring_buffer FrskyTx_RB; // ring buffers for the pass thru
 volatile ring_buffer NinexTx_RB;
@@ -43,10 +43,9 @@ uint8_t clockUpdateCount=0;
 extern void setup(void);
 
 int main() {
-#if F_CPU == 8000000
     CCP = 0xD8; // Unlock protected IO signature
     CLKPR = 0; // run at 8MHz
-#endif
+
     flags.sendSwitches = 1; // the very first thing it will do
                             // is send the switch states to the 9x
     setup();
@@ -116,6 +115,7 @@ int main() {
 
             if(++clockUpdateCount == 32) { // don't change the clock so often
                 clockUpdateCount = 0; // reset counter
+                lowPinPORT |= (1<<IO3);
                 //PPMpulseTime @ 1MHZ pulse time is equal to the pulse length in us
                 cli(); // protect from changing in interrupt
                 uint16_t pulse = PPMpulseTime;
@@ -134,6 +134,7 @@ int main() {
                      } // end error > 25
                     }   // end error != 25
                 } // end error within range
+                lowPinPORT &= ~(1<<IO3);
             }   // end clock update
         }   // end flags.ppmReady
 #endif
