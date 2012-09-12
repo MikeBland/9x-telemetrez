@@ -27,7 +27,7 @@ ISR(TIMER1_CAPT_vect) { // track changes to PPM stream
                 PPMpulseTime = endTime - startTime; // get time of pulse
                 if((PPMpulseTime < 6500ul) && (PPMpulseTime > 700ul)) // check for valid pulse length
                     // Valid pulse will be 100us to 800us
-                    flags.ppmReady = 1; // signal main
+                    ppmReady = 1; // signal main
             }
         } else {
             // pin is low, just passed the start of a sync pulse

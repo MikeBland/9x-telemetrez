@@ -18,5 +18,6 @@ extern volatile ring_buffer FrskyTx_RB; // ring buffers for the pass thru
 extern volatile ring_buffer NinexTx_RB;
 
 extern volatile flgRegs flags;
+extern volatile uint8_t ppmReady;
 
 #endif

@@ -75,12 +75,11 @@
 struct flgRegs {
     uint8_t sendSwitches:1; // trigger main to send switch states
     uint8_t switchto9x:1;   // currently sending switch states to 9x
-    uint8_t sendingtoFrsky:1;   // currently sending frsky packet to frsky module
+//    uint8_t sendingtoFrsky:1;   // currently sending frsky packet to frsky module
     uint8_t PktReceived9x:1;    // packet received from 9x for here, needs processing
     uint8_t FrskyRxBufferReady:1; // Frsky Packet received from Frsky module, forward to 9x
     uint8_t NinexRxBufferReady:1; // Frsky Packet received from 9x, forward to Frsky module
-    uint8_t ppmReady:1; // startup check flag for ppm ready
-    uint8_t captureStarted:1; // wait to start adjusting the clock speed
+//    uint8_t captureStarted:1; // wait to start adjusting the clock speed
 };
 
 #endif

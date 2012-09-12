@@ -33,6 +33,7 @@ volatile uint16_t PPMpulseTime;
 volatile uint32_t systemMillis = 0;
 uint32_t reenableTimer;
 volatile uint8_t sendTo9xEnable = 1; // It is ok to send packets to the 9x
+volatile uint8_t ppmReady = 0;
 
 volatile ring_buffer FrskyTx_RB; // ring buffers for the pass thru
 volatile ring_buffer NinexTx_RB;
@@ -108,9 +109,9 @@ int main() {
     // calibrate internal oscillator from PPM sync pulse
     // NOTE: osccal register has a much wider adjustment range than I thought
     // the oscillator should change ~33kHz per LSB
-        if(flags.ppmReady) {
+        if(ppmReady) {
             cli();
-            flags.ppmReady = 0;
+            ppmReady = 0;
             sei();
 
             if(++clockUpdateCount == 32) { // don't change the clock so often
