@@ -116,14 +116,14 @@ int main() {
 
             if(++clockUpdateCount == 32) { // don't change the clock so often
                 clockUpdateCount = 0; // reset counter
-                lowPinPORT |= (1<<IO3);
                 //PPMpulseTime @ 1MHZ pulse time is equal to the pulse length in us
                 cli(); // protect from changing in interrupt
                 uint16_t pulse = PPMpulseTime;
                 sei();
-                uint8_t error = (pulse % 50) / 8;
+                uint8_t error = (pulse / 8) % 50;
 
-                if((error > 2) && (error < 48)) { 
+                if((error > 1) && (error < 49)) { 
+                    lowPinPORT |= (1<<IO3);
                     if(error != 25) { // because if it is 25 we don't know which way to make the correction
                      if(error > 25) { // clock is running slow
                          if(OSCCAL0 < 255) // don't want to wrap around
@@ -134,8 +134,8 @@ int main() {
                            OSCCAL0--;
                      } // end error > 25
                     }   // end error != 25
+                    lowPinPORT &= ~(1<<IO3);
                 } // end error within range
-                lowPinPORT &= ~(1<<IO3);
             }   // end clock update
         }   // end flags.ppmReady
 #endif

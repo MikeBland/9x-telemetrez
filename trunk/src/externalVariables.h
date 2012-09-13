@@ -11,7 +11,7 @@ extern volatile uint8_t numPktBytes9x;
 extern volatile uint32_t systemMillis;
 extern uint32_t sendSwitchesCount;
 extern volatile uint32_t lastPPMchange;
-extern volatile uint32_t PPMpulseTime;
+extern volatile uint16_t PPMpulseTime;
 extern volatile uint8_t sendTo9xEnable;
 
 extern volatile ring_buffer FrskyTx_RB; // ring buffers for the pass thru
