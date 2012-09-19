@@ -41,6 +41,13 @@ volatile ring_buffer NinexTx_RB;
 volatile flgRegs flags;
 uint8_t clockUpdateCount=0;
 
+#ifdef ROTARYENCODER
+// variables for the rotary encoder
+volatile uint8_t encoderPinValues[2] = {0,0};
+volatile uint8_t encoderPosition = 0;
+volatile uint8_t intStarted=0;
+#endif
+
 extern void setup(void);
 
 int main() {
@@ -56,8 +63,11 @@ int main() {
 
     // these never change, so they can be initalized here
     SwitchBuf[0] = 0x1B; // switches escape character
-    SwitchBuf[1] = 0x01; // number of bytes in packet
-    SwitchBuf[3] = 0x1B;
+#ifdef ROTARYENCODER
+    SwitchBuf[1] = 3; // number of bytes in packets
+#else
+    SwitchBuf[1] = 1; // number of bytes in packet
+#endif
 
     sendSwitchesCount = systemMillis + 3;
     lastPPMchange = systemMillis + 1000; // 5s into the future
@@ -78,6 +88,13 @@ int main() {
             // add 0x1B 0x01 tmp to 9x Tx buffer
             SwitchBuf[2] = tmp; // this is the only byte that changes
                                 // the others are set before the main loop
+#ifdef ROTARYENCODER
+	    SwitchBuf[3] = position;
+	    if( highPinPIN & (1<<IO11)) // test switch
+	      SwitchBuf[4] = 0; // button not pressed
+	    else
+	      SwitchBuf[4] = 1;
+#endif
             flags.switchto9x = 1; // signal that a switch packet is ready
             UCSR1B |= (1<<UDRIE1); // enable interrupt to send bytes
             sei(); // enable interrupts

@@ -71,6 +71,8 @@
 #define PPMinPIN PINC
 #define PPMin 1
 #define CLOCK_ADJUST // to use self calibrating clock (uses PPM stream)
+// rotary encoder A, B get connected to IO13 and IO15, the button gets connected to IO11
+#define ROTARYENCODER // enable the use of a rotary encoder
 
 struct flgRegs {
     uint8_t sendSwitches:1; // trigger main to send switch states

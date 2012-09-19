@@ -51,6 +51,14 @@ void setup(void) {
     pin16PUE &= ~(1<<IO16); // make sure pull-up is off
 #endif
 
+#ifdef ROTARYENCODER
+    highPinDDR &= ~((1<<IO15)|(1<<IO13)|(1<<IO11)); // make pins inputs
+    highPinPUE |= (1<<IO15)|(1<<IO13)|(1<<IO11); // enable the pullups
+    // enable pin change interrupts for both pins
+    PCMSK2 |= (1<<PCINT15)|(1<<PCINT13); // individual pins enable
+    GIMSK |= (1<<PCIE2); // enable the general interrupt
+#endif
+  
     // set up 20ms timer
     TCCR0A = (1<<WGM01); // CTC mode
     TIMSK |= (1<<OCIE0A); // enable interrupt

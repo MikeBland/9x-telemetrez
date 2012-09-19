@@ -35,7 +35,11 @@ ISR(USART1__UDRE_vect) {
             break;
         case sendSwitchpacket:
             UDR1 = SwitchBuf[SwitchBuf_count++];
+#ifdef ROTARYENCODER
+	    if(SwitchBuf_count == 5) {
+#else
             if(SwitchBuf_count == 3) {
+#endif
                 U1TXstate = TxIDLE; // done sending switch packet
                 flags.switchto9x = 0;
             }
