@@ -21,6 +21,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "ringbuffer.h"
+#include "I2C_bb.h"
 
 // Frsky side is USART0
 // 9x side is USART1

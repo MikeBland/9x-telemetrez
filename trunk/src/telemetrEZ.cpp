@@ -24,7 +24,7 @@
 #define BufSize 20
 volatile uint8_t FrskyRxBuf[BufSize];
 volatile uint8_t NinexRxBuf[BufSize];
-volatile uint8_t SwitchBuf[4];
+volatile uint8_t SwitchBuf[5];
 volatile uint8_t numPktBytesFrsky = 0;
 volatile uint8_t numPktBytes9x = 0;
 uint32_t sendSwitchesCount;
@@ -58,13 +58,15 @@ int main() {
                             // is send the switch states to the 9x
     setup();
 
+      I2C_Init();  // start I2C bus on pins IO4 and IO5
+      
 //    WDTCSR |= (1<<WDP3)|(1<<WDP0);  // set 64ms timeout for watchdog
 //    WDTCSR |= (1<<WDE);  // enable the watchdog
 
     // these never change, so they can be initalized here
     SwitchBuf[0] = 0x1B; // switches escape character
 #ifdef ROTARYENCODER
-    SwitchBuf[1] = 3; // number of bytes in packets
+    SwitchBuf[1] = 3; // number of bytes in packet
 #else
     SwitchBuf[1] = 1; // number of bytes in packet
 #endif

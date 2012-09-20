@@ -41,7 +41,7 @@ TARGET = telemetrEZ
 OBJDIR = obj
 
 # List C++ source files here. (C dependencies are automatically generated.)
-CPPSRC = $(TARGET).cpp ringbuffer.cpp setup.cpp ISRs.cpp TxISRs.cpp RxISRs.cpp 
+CPPSRC = $(TARGET).cpp ringbuffer.cpp setup.cpp ISRs.cpp TxISRs.cpp RxISRs.cpp I2C_bb.cpp
 
 #--------------------------------------------------------------------------------
 
