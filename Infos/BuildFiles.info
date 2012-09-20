@@ -1,0 +1,9 @@
+copy crttn1634.o to /usr/lib/avr/lib/avr35/
+copy iotn1634.h to /usr/lib/avr/include/avr/
+modify io.h to include
+---
+#elif defined (__AVR_ATtiny1634__)
+#  include <avr/iotn1634.h>
+---
+append attiny1634_avrdude.conf to the end of /etc/avrdude.conf
+

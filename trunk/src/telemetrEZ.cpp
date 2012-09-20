@@ -89,7 +89,7 @@ int main() {
             SwitchBuf[2] = tmp; // this is the only byte that changes
                                 // the others are set before the main loop
 #ifdef ROTARYENCODER
-	    SwitchBuf[3] = position;
+	    SwitchBuf[3] = encoderPosition;
 	    if( highPinPIN & (1<<IO11)) // test switch
 	      SwitchBuf[4] = 0; // button not pressed
 	    else
