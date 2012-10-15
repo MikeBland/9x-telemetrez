@@ -17,7 +17,7 @@ void setup(void) {
     PPMinPUE |= (1<<PPMin); // enable internal pullup
     PPMinDDR &= ~(1<<PPMin); // PPM input pin
 
-    //USART0:  9x side USART
+    //USART0:  Frsky side USART
     UBRR0H = UBRRH_VALUE;
     UBRR0L = UBRRL_VALUE;
 #if USE_2X
@@ -29,7 +29,7 @@ void setup(void) {
     UCSR0D = 0;     // no frame detection
     UCSR0B = (1<<RXCIE0)|(1<<RXEN0)|(1<<TXEN0); // enables the Tx and Rx, and Rx interrupt
 
-    //USART1: Frsky side USART
+    //USART1: 9x side USART
     UBRR1H = UBRRH_VALUE;
     UBRR1L = UBRRL_VALUE;
 #if USE_2X

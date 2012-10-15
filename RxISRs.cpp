@@ -12,17 +12,17 @@
 
 #define START_STOP      0x7e
 
-ISR(USART1__RX_vect)
+ISR(USART0__RX_vect)
 {
   uint8_t stat;
   uint8_t data;
 
   static uint8_t dataState = frskyDataIdle;
 
-  stat = UCSR1A; // USART control and Status Register 0 A
-  data = UDR1; // USART data register 0
+  stat = UCSR0A; // USART control and Status Register 0 A
+  data = UDR0; // USART data register 0
 
-  if (stat & ((1 << FE1) | (1 << DOR1) | (1 << UPE1)))
+  if (stat & ((1 << FE0) | (1 << DOR0) | (1 << UPE0)))
   { // discard buffer and start fresh on any comms error
     flags.FrskyRxBufferReady = 0;
     numPktBytesFrsky = 0;
@@ -78,15 +78,15 @@ ISR(USART1__RX_vect)
 
 //#define START_STOP      0x7e
 #define ESCAPE 0x1B
-ISR(USART0__RX_vect)
+ISR(USART1__RX_vect)
 {
   uint8_t stat;
   uint8_t data;
   
   static uint8_t dataState9x = frskyDataIdle;
 
-  stat = UCSR0A; // USART control and Status Register 0 A
-  data = UDR0; // USART data register 0
+  stat = UCSR1A; // USART control and Status Register 0 A
+  data = UDR1; // USART data register 0
 
   if (stat & ((1 << FE0) | (1 << DOR0) | (1 << UPE0)))
   { // discard buffer and start fresh on any comms error

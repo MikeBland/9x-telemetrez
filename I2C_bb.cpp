@@ -18,8 +18,7 @@
 */
 void I2C_Init(void) {
   // set pins to input mode
-  I2C_PUE |= (1<<I2C_DAT) | (1<<I2C_CLK); // enable pullups
-  I2C_PORT &= ~((1<<I2C_DAT) | (1<<I2C_CLK)); // make sure the output is low
+  I2C_PORT &= ~( ( 1 << I2C_DAT ) | ( 1 << I2C_CLK ) ); // disable pullups
   I2C_CLOCK_HI();
   I2C_DATA_HI();
 }

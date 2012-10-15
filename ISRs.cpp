@@ -4,9 +4,7 @@
 
 ISR(TIMER0_COMPA_vect) {
     systemMillis++;
-#ifdef DEBUG
     lowPinPORT ^= (1<<IO1);  // so we know the program is still running
-#endif
 }
 
 ISR(TIMER1_CAPT_vect) { // track changes to PPM stream

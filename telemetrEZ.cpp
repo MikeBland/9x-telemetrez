@@ -57,9 +57,9 @@ int main() {
     flags.sendSwitches = 1; // the very first thing it will do
                             // is send the switch states to the 9x
     setup();
-#ifdef EEPROM
+
       I2C_Init();  // start I2C bus on pins IO4 and IO5
-#endif
+      
 //    WDTCSR |= (1<<WDP3)|(1<<WDP0);  // set 64ms timeout for watchdog
 //    WDTCSR |= (1<<WDE);  // enable the watchdog
 
@@ -98,7 +98,7 @@ int main() {
 	      SwitchBuf[4] = 1;
 #endif
             flags.switchto9x = 1; // signal that a switch packet is ready
-            UCSR0B |= (1<<UDRIE0); // enable interrupt to send bytes
+            UCSR1B |= (1<<UDRIE1); // enable interrupt to send bytes
             sei(); // enable interrupts
         }
     // check if ppm stream is active, stop if PPM lost
@@ -106,7 +106,7 @@ int main() {
             // it has been > 30 ms since last change and the PPM pin is high
             // if the 9x is in simulator or student mode the PPM line will be low
             // stop Tx to 9x
-            UCSR0B &= ~((1<<TXEN0)|(1<<UDRIE0)); // turn off Tx to 9x
+            UCSR1B &= ~((1<<TXEN1)|(1<<UDRIE1)); // turn off Tx to 9x
             // need power cycle after programming to come back
             lowPinPORT |= (1<<IO3); // this pin will go high if it thinks the 9x is being programmed
             sendTo9xEnable = 0; // disable sending to 9x side
@@ -117,11 +117,9 @@ int main() {
                 // ppm is back, reenable Tx to 9x
                 if(reenableTimer < systemMillis) { // wait 15 seconds before sending to 9x again
                     sendTo9xEnable = 1;
-                    UCSR0B |= (1<<TXEN0)|(1<<UDRIE0); // reenable the Tx
+                    UCSR1B |= (1<<TXEN1)|(1<<UDRIE1); // reenable the Tx
                     sendSwitchesCount = systemMillis + 3;
-#ifdef DEBUG
                     lowPinPORT &= ~(1<<IO3);
-#endif
                 } // end if reenableTimer
             } // end if !sendTo9xEnable
         }
@@ -155,9 +153,7 @@ int main() {
                            OSCCAL0--;
                      } // end error > 25
                     }   // end error != 25
-#ifdef DEBUG
                     lowPinPORT &= ~(1<<IO3);
-#endif
                 } // end error within range
             }   // end clock update
         }   // end flags.ppmReady
@@ -171,7 +167,7 @@ int main() {
                       NinexTx_RB.push(FrskyRxBuf[i]);
                     }
                     cli();
-                    UCSR0B |= (1<<UDRIE0); // enable interrupt to send bytes
+                    UCSR1B |= (1<<UDRIE1); // enable interrupt to send bytes
                     flags.FrskyRxBufferReady = 0; // Signal Rx buffer is ok to receive
                     sei(); // enable interrupts
                 }
@@ -189,7 +185,7 @@ int main() {
                   FrskyTx_RB.push(NinexRxBuf[i]);
                 }
                 cli();
-                UCSR1B |= (1<<UDRIE1); // enable interrupt to send bytes
+                UCSR0B |= (1<<UDRIE0); // enable interrupt to send bytes
                 flags.NinexRxBufferReady = 0; // Signal Rx buffer is ok to receive
                 sei(); // enable interrupts
             }
@@ -204,9 +200,7 @@ int main() {
             flags.PktReceived9x = 0;
             sei();
         }
-#ifdef DEBUG
         lowPinPORT ^= (1<<IO2); // timing test for main
-#endif 
     // sleep to save energy here
         // by default sleep mode is idle
         MCUCR |= (1<<SE); // enable sleep

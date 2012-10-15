@@ -23,8 +23,8 @@
 #include "ringbuffer.h"
 #include "I2C_bb.h"
 
-// Frsky side is USART1
-// 9x side is USART0
+// Frsky side is USART0
+// 9x side is USART1
 
 #define switch_PORT PORTA
 #define switch_DDR DDRA
@@ -37,36 +37,30 @@
 #define lowPinPORT PORTA
 #define lowPinPIN PINA
 #define lowPinPUE PUEA
-#define IO1 6 // PA6 *DEBUG* 20ms toggle output
-#define IO2 5 // PA5 *DEBUG* main toggle output
-#define IO3 4 // PA4 *DEBUG* goes high is ppm signal is lost
-#define IO4 3 // PA3 eeprom
-#define IO5 2 // PA2 eeprom
+#define IO1 6 // PA6
+#define IO2 5 // PA5
+#define IO3 4 // PA4
+#define IO4 3 // PA3
+#define IO5 2 // PA2
 
 #define highPinDDR DDRC
 #define highPinPORT PORTC
 #define highPinPIN PINC
 #define highPinPUE PUEC
 #define IO10 5 // PC5
-#define IO11 4 // PC4 Rotary Encoder Switch
-#define IO13 2 // PC2 Rotary Encoder B
-#define IO15 0 // PC0 Rotary Encoder A
+#define IO11 4 // PC4
+#define IO13 2 // PC2
+#define IO15 0 // PC0
 
 #define pin16DDR DDRB
 #define pin16PORT PORTB
 #define pin16PIN PINB // use this pin as output only, see errata
 #define pin16PUE PUEB
-#define IO16 3 // PB3 Bluetooth
+#define IO16 3 // PB3
 
 // uncomment the following line to enable piggybacked Frsky
 // output to a bluetooth module
 #define BLUETOOTH
-// uncomment the following line to use an I2C EEPROM (uses IO4 and IO5)
-#define EEPROM
-// rotary encoder A, B get connected to IO13 and IO15, the button gets connected to IO11
-#define ROTARYENCODER // enable the use of a rotary encoder
-
-#define DEBUG
 
 #define F_CPU 8000000 // CPU speed at run time
 #define BAUD 9600  // USART Baud rate
@@ -77,8 +71,9 @@
 #define PPMinPUE PUEC
 #define PPMinPIN PINC
 #define PPMin 1
-
 #define CLOCK_ADJUST // to use self calibrating clock (uses PPM stream)
+// rotary encoder A, B get connected to IO13 and IO15, the button gets connected to IO11
+#define ROTARYENCODER // enable the use of a rotary encoder
 
 struct flgRegs {
     uint8_t sendSwitches:1; // trigger main to send switch states
