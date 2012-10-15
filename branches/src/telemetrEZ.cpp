@@ -57,9 +57,9 @@ int main() {
     flags.sendSwitches = 1; // the very first thing it will do
                             // is send the switch states to the 9x
     setup();
-
+#ifdef EEPROM
       I2C_Init();  // start I2C bus on pins IO4 and IO5
-      
+#endif
 //    WDTCSR |= (1<<WDP3)|(1<<WDP0);  // set 64ms timeout for watchdog
 //    WDTCSR |= (1<<WDE);  // enable the watchdog
 
@@ -119,7 +119,9 @@ int main() {
                     sendTo9xEnable = 1;
                     UCSR0B |= (1<<TXEN0)|(1<<UDRIE0); // reenable the Tx
                     sendSwitchesCount = systemMillis + 3;
+#ifdef DEBUG
                     lowPinPORT &= ~(1<<IO3);
+#endif
                 } // end if reenableTimer
             } // end if !sendTo9xEnable
         }
@@ -153,7 +155,9 @@ int main() {
                            OSCCAL0--;
                      } // end error > 25
                     }   // end error != 25
+#ifdef DEBUG
                     lowPinPORT &= ~(1<<IO3);
+#endif
                 } // end error within range
             }   // end clock update
         }   // end flags.ppmReady
@@ -200,7 +204,9 @@ int main() {
             flags.PktReceived9x = 0;
             sei();
         }
+#ifdef DEBUG
         lowPinPORT ^= (1<<IO2); // timing test for main
+#endif 
     // sleep to save energy here
         // by default sleep mode is idle
         MCUCR |= (1<<SE); // enable sleep

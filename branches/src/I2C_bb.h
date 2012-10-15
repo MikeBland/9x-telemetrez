@@ -18,6 +18,7 @@ Header file for the bit-banged I2C functions.
 #define I2C_PIN PINA
 /** Output register for the I2C pins */
 #define I2C_PORT PORTA
+#define I2C_PUE PUEA
 
 // Pins to be used in the bit banging
 /** Pin number to use as I2C clock */
