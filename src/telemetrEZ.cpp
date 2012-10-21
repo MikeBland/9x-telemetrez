@@ -32,7 +32,7 @@ volatile uint32_t lastPPMchange = 0;
 volatile uint16_t PPMpulseTime;
 volatile uint32_t systemMillis = 0;
 uint32_t reenableTimer;
-volatile uint8_t sendTo9xEnable = 1; // It is ok to send packets to the 9x
+volatile uint8_t sendTo9xEnable = 0; // It is ok to send packets to the 9x
 volatile uint8_t ppmReady = 0;
 
 volatile ring_buffer FrskyTx_RB; // ring buffers for the pass thru
@@ -76,7 +76,7 @@ int main() {
 #endif
 
     sendSwitchesCount = systemMillis + 3;
-    lastPPMchange = systemMillis + 1000; // 5s into the future
+//    lastPPMchange = systemMillis + 1000; // 5s into the future
 
     while(1) {
 //	wdt_reset(); // reset the watchdog timer
@@ -111,7 +111,7 @@ int main() {
             // if the 9x is in simulator or student mode the PPM line will be low
             // stop Tx to 9x
             UCSR0B &= ~((1<<TXEN0)|(1<<UDRIE0)); // turn off Tx to 9x
-            // need power cycle after programming to come back
+            // 
             lowPinPORT |= (1<<IO3); // this pin will go high if it thinks the 9x is being programmed
             sendTo9xEnable = 0; // disable sending to 9x side
             NinexTx_RB.clear(); // clear the buffer
@@ -119,8 +119,9 @@ int main() {
         } else {
             if(!sendTo9xEnable) {
                 // ppm is back, reenable Tx to 9x
-                if(reenableTimer < systemMillis) { // wait 15 seconds before sending to 9x again
+                if(reenableTimer < systemMillis || !flags.Startup) { // wait 15 seconds before sending to 9x again
                     sendTo9xEnable = 1;
+                    flags.Startup = 1;
                     UCSR0B |= (1<<TXEN0)|(1<<UDRIE0); // reenable the Tx
                     sendSwitchesCount = systemMillis + 3;
 #ifdef DEBUG
@@ -212,7 +213,7 @@ int main() {
         lowPinPORT ^= (1<<IO2); // timing test for main
         if(systemMillis > ProdTestMillis) {
             ProdTestMillis += ProdTestInterval;
-            highPinPORT |= (1<<IO10);
+            highPinPORT ^= (1<<IO10);
         }
 #endif 
 
