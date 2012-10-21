@@ -47,6 +47,10 @@ volatile uint8_t encoderPinValues[2] = {0,0};
 volatile uint8_t encoderPosition = 0;
 volatile uint8_t intStarted=0;
 #endif
+#ifdef DEBUG
+uint32_t ProdTestMillis = 0;
+const uint32_t ProdTestInterval = 100;
+#endif
 
 extern void setup(void);
 
@@ -206,7 +210,12 @@ int main() {
         }
 #ifdef DEBUG
         lowPinPORT ^= (1<<IO2); // timing test for main
+        if(systemMillis > ProdTestMillis) {
+            ProdTestMillis += ProdTestInterval;
+            highPinPORT |= (1<<IO10);
+        }
 #endif 
+
     // sleep to save energy here
         // by default sleep mode is idle
         MCUCR |= (1<<SE); // enable sleep

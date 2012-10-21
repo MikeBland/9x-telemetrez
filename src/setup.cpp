@@ -13,7 +13,9 @@ void setup(void) {
 
     lowPinDDR |= (1<<IO1)|(1<<IO2)|(1<<IO3)|(1<<IO4)|(1<<IO5); // all outputs
     lowPinPORT &= ~((1<<IO1)|(1<<IO2)|(1<<IO3)|(1<<IO4)|(1<<IO5)); // all set low
-
+#ifdef DEBUG
+    highPinDDR |= (1<<IO10); // output for production test
+#endif
     PPMinPUE |= (1<<PPMin); // enable internal pullup
     PPMinDDR &= ~(1<<PPMin); // PPM input pin
 
