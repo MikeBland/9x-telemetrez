@@ -43,9 +43,6 @@ void setup(void) {
     UCSR1D = 0;     // no frame detection
     UCSR1B = (1<<RXEN1)|(1<<RXCIE1); // enables the Rx, and Rx interrupt
 
-    while(PPMinPIN & (1<<PPMin)); // wait for PPM pin to go low
-    UCSR1B |= (1<<TXEN1); // enable 9x side Tx
-
 #ifdef BLUETOOTH
     pin16DDR &= ~(1<<IO16); // disable output to bluetooth
     pin16PORT |= (1<<IO16); // set the output high, pull-ups are on a different register 
