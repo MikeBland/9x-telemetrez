@@ -47,7 +47,7 @@
 #define highPinPORT PORTC
 #define highPinPIN PINC
 #define highPinPUE PUEC
-#define IO10 5 // PC5
+#define IO10 5 // PC5 output for production test
 #define IO11 4 // PC4 Rotary Encoder Switch
 #define IO13 2 // PC2 Rotary Encoder B
 #define IO15 0 // PC0 Rotary Encoder A
