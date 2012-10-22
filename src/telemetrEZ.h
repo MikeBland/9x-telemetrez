@@ -47,7 +47,7 @@
 #define highPinPORT PORTC
 #define highPinPIN PINC
 #define highPinPUE PUEC
-#define IO10 5 // PC5 output for production test
+#define IO10 5 // PC5 production test LED
 #define IO11 4 // PC4 Rotary Encoder Switch
 #define IO13 2 // PC2 Rotary Encoder B
 #define IO15 0 // PC0 Rotary Encoder A
@@ -62,15 +62,17 @@
 // output to a bluetooth module
 #define BLUETOOTH
 // uncomment the following line to use an I2C EEPROM (uses IO4 and IO5)
-#define EEPROM
+//#define EEPROM
+
 // rotary encoder A, B get connected to IO13 and IO15, the button gets connected to IO11
 #define ROTARYENCODER // enable the use of a rotary encoder
 
+// enables some debugging outputs, basically toggles some pins so you know it is running
+// this also includes the production test code to flash an led
 #define DEBUG
 
 #define F_CPU 8000000 // CPU speed at run time
 #define BAUD 9600  // USART Baud rate
-
 #include <util/setbaud.h> // this will calculate the proper config values
 
 #define PPMinDDR DDRC
@@ -87,6 +89,7 @@ struct flgRegs {
     uint8_t FrskyRxBufferReady:1; // Frsky Packet received from Frsky module, forward to 9x
     uint8_t NinexRxBufferReady:1; // Frsky Packet received from 9x, forward to Frsky module
     uint8_t Startup:1; // flag for startup to enable Tx to 9x side
+    uint8_t ProdTest:1; // Only run the production test for a short period of time
 };
 
 #endif

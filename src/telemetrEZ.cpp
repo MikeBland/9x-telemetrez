@@ -49,7 +49,8 @@ volatile uint8_t intStarted=0;
 #endif
 #ifdef DEBUG
 uint32_t ProdTestMillis = 0;
-const uint32_t ProdTestInterval = 100;
+const uint32_t ProdTestInterval = 25;
+const uint32_t ProdTestMax = 1000;
 #endif
 
 extern void setup(void);
@@ -211,10 +212,14 @@ int main() {
         }
 #ifdef DEBUG
         lowPinPORT ^= (1<<IO2); // timing test for main
-        if(systemMillis > ProdTestMillis) {
-            ProdTestMillis += ProdTestInterval;
-            highPinPORT ^= (1<<IO10);
-        }
+	if(!flags.ProdTest) {
+	  if(systemMillis > ProdTestMillis) {
+	      ProdTestMillis += ProdTestInterval;
+	      highPinPORT ^= (1<<IO10);
+	      if(ProdTestMillis > ProdTestMax)
+		flags.ProdTest = 1;
+	  }
+	}
 #endif 
 
     // sleep to save energy here
