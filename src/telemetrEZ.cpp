@@ -70,11 +70,7 @@ int main() {
 
     // these never change, so they can be initalized here
     SwitchBuf[0] = 0x1B; // switches escape character
-#ifdef ROTARYENCODER
-    SwitchBuf[1] = 3; // number of bytes in packet
-#else
-    SwitchBuf[1] = 1; // number of bytes in packet
-#endif
+    SwitchBuf[1] = 1; // number of bytes in switch packet
 
     sendSwitchesCount = systemMillis + 3;
 //    lastPPMchange = systemMillis + 1000; // 5s into the future
@@ -96,16 +92,26 @@ int main() {
             SwitchBuf[2] = tmp; // this is the only byte that changes
                                 // the others are set before the main loop
 #ifdef ROTARYENCODER
-	    SwitchBuf[3] = encoderPosition;
-	    if( highPinPIN & (1<<IO11)) // test switch
-	      SwitchBuf[4] = 0; // button not pressed
-	    else
-	      SwitchBuf[4] = 1;
+	    if(flags.sendEncoder) {
+	      SwitchBuf[3] = encoderPosition;
+	      if( highPinPIN & (1<<IO11)) // test switch
+		SwitchBuf[4] = 0; // button not pressed
+	      else
+		SwitchBuf[4] = 1;
+	    }
 #endif
             flags.switchto9x = 1; // signal that a switch packet is ready
             UCSR0B |= (1<<UDRIE0); // enable interrupt to send bytes
             sei(); // enable interrupts
         }
+#ifdef ROTARYENCODER
+	if(!flags.sendEncoder) {
+	  if(encoderPosition != 0) { // if the encoder was moved it must be attached
+	    flags.sendEncoder = 1;
+	    SwitchBuf[1] = 3; // number of bytes in switch and encoder packet
+	  }
+	}
+#endif
     // check if ppm stream is active, stop if PPM lost
         if(((lastPPMchange + 6) < systemMillis) && (PPMinPIN & (1<<PPMin)) ) { 
             // it has been > 30 ms since last change and the PPM pin is high
