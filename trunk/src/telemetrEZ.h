@@ -90,6 +90,7 @@ struct flgRegs {
     uint8_t NinexRxBufferReady:1; // Frsky Packet received from 9x, forward to Frsky module
     uint8_t Startup:1; // flag for startup to enable Tx to 9x side
     uint8_t ProdTest:1; // Only run the production test for a short period of time
+    uint8_t sendEncoder:1; // if the encoder is connected send it's position
 };
 
 #endif
