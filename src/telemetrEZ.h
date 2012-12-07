@@ -1,4 +1,4 @@
-﻿/*
+ /*
  *  Author - Hank B <gohsthb@gmail.com>
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -37,26 +37,26 @@
 #define lowPinPORT PORTA
 #define lowPinPIN PINA
 #define lowPinPUE PUEA
-#define IO1 6 // PA6 *DEBUG* 20ms toggle output
-#define IO2 5 // PA5 *DEBUG* main toggle output
-#define IO3 4 // PA4 *DEBUG* goes high is ppm signal is lost
-#define IO4 3 // PA3 eeprom
-#define IO5 2 // PA2 eeprom
+#define IO1 6 //E PA6 *DEBUG* 20ms toggle output
+#define IO2 5 //D PA5 *DEBUG* main toggle output
+#define IO3 4 //C PA4 *DEBUG* goes high is ppm signal is lost
+#define IO4 3 //B PA3 eeprom
+#define IO5 2 //A PA2 eeprom
 
 #define highPinDDR DDRC
 #define highPinPORT PORTC
 #define highPinPIN PINC
 #define highPinPUE PUEC
-#define IO10 5 // PC5 production test LED
-#define IO11 4 // PC4 Rotary Encoder Switch
-#define IO13 2 // PC2 Rotary Encoder B
-#define IO15 0 // PC0 Rotary Encoder A
+#define IO10 5 //J PC5 production test LED
+#define IO11 4 //I PC4 Rotary Encoder Switch
+#define IO13 2 //H PC2 Rotary Encoder B
+#define IO15 0 //G PC0 Rotary Encoder A
 
 #define pin16DDR DDRB
 #define pin16PORT PORTB
 #define pin16PIN PINB // use this pin as output only, see errata
 #define pin16PUE PUEB
-#define IO16 3 // PB3 Bluetooth
+#define IO16 3 //F PB3 Bluetooth
 
 // uncomment the following line to enable piggybacked Frsky
 // output to a bluetooth module
