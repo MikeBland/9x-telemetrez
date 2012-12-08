@@ -73,7 +73,7 @@ int main() {
     SwitchBuf[1] = 1; // number of bytes in switch packet
 
     sendSwitchesCount = systemMillis + 3;
-//    lastPPMchange = systemMillis + 1000; // 5s into the future
+    lastPPMchange = systemMillis + 1000; // 5s into the future
 
     while(1) {
 //	wdt_reset(); // reset the watchdog timer
@@ -222,8 +222,10 @@ int main() {
 	  if(systemMillis > ProdTestMillis) {
 	      ProdTestMillis += ProdTestInterval;
 	      highPinPORT ^= (1<<IO10);
-	      if(ProdTestMillis > ProdTestMax)
-		flags.ProdTest = 1;
+	      if(ProdTestMillis > ProdTestMax) {
+		    flags.ProdTest = 1;
+            highPinPORT &= ~(1<<IO10);
+          }
 	  }
 	}
 #endif 
