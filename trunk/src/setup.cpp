@@ -29,7 +29,7 @@ void setup(void) {
 #endif
     UCSR0C = (1<<UCSZ01)|(1<<UCSZ00);  // 8-bit asynchronous mode 1 stop bit no parity
     UCSR0D = 0;     // no frame detection
-    UCSR0B = (1<<RXCIE0)|(1<<RXEN0)|(1<<TXEN0); // enables the Tx and Rx, and Rx interrupt
+    UCSR0B = (1<<RXCIE0)|(1<<RXEN0); //|(1<<TXEN0); // enables the Tx and Rx, and Rx interrupt
 
     //USART1: Frsky side USART
     UBRR1H = UBRRH_VALUE;
@@ -41,7 +41,7 @@ void setup(void) {
 #endif
     UCSR1C = (1<<UCSZ11)|(1<<UCSZ10);  // 8-bit asynchronous mode 1 stop bit no parity
     UCSR1D = 0;     // no frame detection
-    UCSR1B = (1<<RXEN1)|(1<<RXCIE1); // enables the Rx, and Rx interrupt
+    UCSR1B = (1<<RXEN1)|(1<<RXCIE1)|(1<<TXEN1); // enables the Rx, and Rx interrupt
 
 #ifdef BLUETOOTH
     pin16DDR &= ~(1<<IO16); // disable output to bluetooth
