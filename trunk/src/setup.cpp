@@ -8,6 +8,7 @@ void setup(void) {
     ACSRA = (1<<ACD); // analog comparator
 
     // set up ports
+    
     switch_DDR &= ~((1<<AIL_sw)|(1<<THR_sw)); // switches are inputs
     switch_PUE |= (1<<AIL_sw)|(1<<THR_sw); // enable pull-ups
 
@@ -53,9 +54,7 @@ void setup(void) {
 #ifdef ROTARYENCODER
     highPinDDR &= ~((1<<IO15)|(1<<IO13)|(1<<IO11)); // make pins inputs
     highPinPUE |= (1<<IO15)|(1<<IO13)|(1<<IO11); // enable the pullups
-    // enable pin change interrupts for both pins
-    PCMSK2 |= (1<<PCINT15)|(1<<PCINT13); // individual pins enable
-    GIMSK |= (1<<PCIE2); // enable the general interrupt
+    highPinPORT |= (1<<IO15)|(1<<IO13)|(1<<IO11);
 #endif
   
     // set up 20ms timer

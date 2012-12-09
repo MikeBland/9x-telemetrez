@@ -54,6 +54,7 @@ const uint32_t ProdTestMax = 1000;
 #endif
 
 extern void setup(void);
+void rotary_encoder_change(uint8_t changedPin, uint8_t value);
 
 int main() {
     CCP = 0xD8; // Unlock protected IO signature
@@ -104,14 +105,6 @@ int main() {
             UCSR0B |= (1<<UDRIE0); // enable interrupt to send bytes
             sei(); // enable interrupts
         }
-#ifdef ROTARYENCODER
-	if(!flags.sendEncoder) {
-	  if(encoderPosition != 0) { // if the encoder was moved it must be attached
-	    flags.sendEncoder = 1;
-	    SwitchBuf[1] = 3; // number of bytes in switch and encoder packet
-	  }
-	}
-#endif
     // check if ppm stream is active, stop if PPM lost
         if(((lastPPMchange + 6) < systemMillis) && (PPMinPIN & (1<<PPMin)) ) { 
             // it has been > 30 ms since last change and the PPM pin is high
@@ -229,7 +222,27 @@ int main() {
 	  }
 	}
 #endif 
-
+#ifdef ROTARYENCODER
+    // check if rotary encoder has been moved
+    // this will run at least every 5ms
+    uint8_t pin0 = (highPinPIN & (1<<IO15));
+    uint8_t pin1 = (highPinPIN & (1<<IO13));
+    if(pin0 != encoderPinValues[0]) {
+      rotary_encoder_change(0, pin0);
+    } else if(pin1 != encoderPinValues[1]) {
+      rotary_encoder_change(1, pin1);
+    }
+	if(!flags.sendEncoder) {
+      if(systemMillis > ProdTestMillis) {
+    	  if(encoderPosition != 0) { // if the encoder was moved it must be attached
+    	    flags.sendEncoder = 1;
+    	    SwitchBuf[1] = 3; // number of bytes in switch and encoder packet
+          }
+	  } else {
+        encoderPosition = 0;
+      }
+	}
+#endif
     // sleep to save energy here
         // by default sleep mode is idle
         MCUCR |= (1<<SE); // enable sleep
@@ -237,4 +250,14 @@ int main() {
         MCUCR &= ~(1<<SE); // disable sleep */
     } // end while(1)
 } // end main
+
+#ifdef ROTARYENCODER
+void rotary_encoder_change(uint8_t changedPin, uint8_t value) {
+  encoderPinValues[changedPin] = value;
+  if((encoderPinValues[0] == encoderPinValues[1]) ^ changedPin)
+    encoderPosition++;
+  else
+    encoderPosition--;
+}
+#endif
 
