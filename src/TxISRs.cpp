@@ -10,6 +10,7 @@
 ISR(USART0__UDRE_vect) {
     static uint8_t SwitchBuf_count;
     static uint8_t U1TXstate = TxIDLE;
+    uint8_t SBC;
 
     switch(U1TXstate) {
         case TxIDLE:
@@ -35,11 +36,11 @@ ISR(USART0__UDRE_vect) {
             break;
         case sendSwitchpacket:
             UDR0 = SwitchBuf[SwitchBuf_count++];
-#ifdef ROTARYENCODER
-	    if(SwitchBuf_count == 5) {
-#else
-            if(SwitchBuf_count == 3) {
-#endif
+            if(flags.sendEncoder)
+                SBC = 5; // encoder packet is 5 bytes
+            else
+                SBC = 3; // switches only packet is 3 bytes
+            if(SwitchBuf_count == SBC) {
                 U1TXstate = TxIDLE; // done sending switch packet
                 flags.switchto9x = 0;
             }
