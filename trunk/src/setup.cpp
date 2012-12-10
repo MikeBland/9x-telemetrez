@@ -12,10 +12,10 @@ void setup(void) {
     switch_DDR &= ~((1<<AIL_sw)|(1<<THR_sw)); // switches are inputs
     switch_PUE |= (1<<AIL_sw)|(1<<THR_sw); // enable pull-ups
 
-    lowPinDDR |= (1<<IO1)|(1<<IO2)|(1<<IO3)|(1<<IO4)|(1<<IO5); // all outputs
-    lowPinPORT &= ~((1<<IO1)|(1<<IO2)|(1<<IO3)|(1<<IO4)|(1<<IO5)); // all set low
+    lowPinDDR |= (1<<IO_E)|(1<<IO_D)|(1<<IO_C)|(1<<IO_B)|(1<<IO_A); // all outputs
+    lowPinPORT &= ~((1<<IO_E)|(1<<IO_D)|(1<<IO_C)|(1<<IO_B)|(1<<IO_A)); // all set low
 #ifdef DEBUG
-    highPinDDR |= (1<<IO10); // output for production test
+    highPinDDR |= (1<<IO_J); // output for production test
 #endif
     PPMinPUE |= (1<<PPMin); // enable internal pullup
     PPMinDDR &= ~(1<<PPMin); // PPM input pin
@@ -45,16 +45,16 @@ void setup(void) {
     UCSR1B = (1<<RXEN1)|(1<<RXCIE1)|(1<<TXEN1); // enables the Rx, and Rx interrupt
 
 #ifdef BLUETOOTH
-    pin16DDR &= ~(1<<IO16); // disable output to bluetooth
-    pin16PORT |= (1<<IO16); // set the output high, pull-ups are on a different register 
+    pinFDDR &= ~(1<<IO_F); // disable output to bluetooth
+    pinFPORT |= (1<<IO_F); // set the output high, pull-ups are on a different register 
                             // this chip, so high-impedance output should not be driven
-    pin16PUE &= ~(1<<IO16); // make sure pull-up is off
+    pinFPUE &= ~(1<<IO_F); // make sure pull-up is off
 #endif
 
 #ifdef ROTARYENCODER
-    highPinDDR &= ~((1<<IO15)|(1<<IO13)|(1<<IO11)); // make pins inputs
-    highPinPUE |= (1<<IO15)|(1<<IO13)|(1<<IO11); // enable the pullups
-    highPinPORT |= (1<<IO15)|(1<<IO13)|(1<<IO11);
+    highPinDDR &= ~((1<<IO_G)|(1<<IO_H)|(1<<IO_I)); // make pins inputs
+    highPinPUE |= (1<<IO_G)|(1<<IO_H)|(1<<IO_I); // enable the pullups
+    highPinPORT |= (1<<IO_G)|(1<<IO_H)|(1<<IO_I);
 #endif
   
     // set up 20ms timer

@@ -43,7 +43,7 @@ uint8_t clockUpdateCount=0;
 
 #ifdef ROTARYENCODER
 // variables for the rotary encoder
-volatile uint8_t encoderPinValues[2] = {0,0};
+volatile uint8_t encoderPinValues[] = {1,1};
 volatile uint8_t encoderPosition = 0;
 volatile uint8_t intStarted=0;
 #endif
@@ -64,7 +64,7 @@ int main() {
                             // is send the switch states to the 9x
     setup();
 #ifdef EEPROM
-      I2C_Init();  // start I2C bus on pins IO4 and IO5
+      I2C_Init();  // start I2C bus on pins IO_B and IO_A
 #endif
 //    WDTCSR |= (1<<WDP3)|(1<<WDP0);  // set 64ms timeout for watchdog
 //    WDTCSR |= (1<<WDE);  // enable the watchdog
@@ -95,7 +95,7 @@ int main() {
 #ifdef ROTARYENCODER
 	    if(flags.sendEncoder) {
 	      SwitchBuf[3] = encoderPosition;
-	      if( highPinPIN & (1<<IO11)) // test switch
+	      if( highPinPIN & (1<<IO_I)) // test switch
 		SwitchBuf[4] = 0; // button not pressed
 	      else
 		SwitchBuf[4] = 1;
@@ -112,7 +112,7 @@ int main() {
             // stop Tx to 9x
             UCSR0B &= ~((1<<TXEN0)|(1<<UDRIE0)); // turn off Tx to 9x
             // 
-            lowPinPORT |= (1<<IO3); // this pin will go high if it thinks the 9x is being programmed
+            lowPinPORT |= (1<<IO_C); // this pin will go high if it thinks the 9x is being programmed
             sendTo9xEnable = 0; // disable sending to 9x side
             NinexTx_RB.clear(); // clear the buffer
             reenableTimer = systemMillis + 3000ul;
@@ -125,7 +125,7 @@ int main() {
                     UCSR0B |= (1<<TXEN0)|(1<<UDRIE0); // reenable the Tx
                     sendSwitchesCount = systemMillis + 3;
 #ifdef DEBUG
-                    lowPinPORT &= ~(1<<IO3);
+                    lowPinPORT &= ~(1<<IO_C);
 #endif
                 } // end if reenableTimer
             } // end if !sendTo9xEnable
@@ -149,7 +149,7 @@ int main() {
                 uint8_t error = (pulse / 8) % 50;
 
                 if((error > 1) && (error < 49)) { 
-                    lowPinPORT |= (1<<IO3);
+                    lowPinPORT |= (1<<IO_C);
                     if(error != 25) { // because if it is 25 we don't know which way to make the correction
                      if(error > 25) { // clock is running slow
                          if(OSCCAL0 < 255) // don't want to wrap around
@@ -161,7 +161,7 @@ int main() {
                      } // end error > 25
                     }   // end error != 25
 #ifdef DEBUG
-                    lowPinPORT &= ~(1<<IO3);
+                    lowPinPORT &= ~(1<<IO_C);
 #endif
                 } // end error within range
             }   // end clock update
@@ -210,14 +210,14 @@ int main() {
             sei();
         }
 #ifdef DEBUG
-        lowPinPORT ^= (1<<IO2); // timing test for main
+        lowPinPORT ^= (1<<IO_D); // timing test for main
 	if(!flags.ProdTest) {
 	  if(systemMillis > ProdTestMillis) {
 	      ProdTestMillis += ProdTestInterval;
-	      highPinPORT ^= (1<<IO10);
+	      highPinPORT ^= (1<<IO_J);
 	      if(ProdTestMillis > ProdTestMax) {
 		    flags.ProdTest = 1;
-            highPinPORT &= ~(1<<IO10);
+            highPinPORT &= ~(1<<IO_J);
           }
 	  }
 	}
@@ -225,8 +225,8 @@ int main() {
 #ifdef ROTARYENCODER
     // check if rotary encoder has been moved
     // this will run at least every 5ms
-    uint8_t pin0 = (highPinPIN & (1<<IO15));
-    uint8_t pin1 = (highPinPIN & (1<<IO13));
+    uint8_t pin0 = (highPinPIN & (1<<IO_G));
+    uint8_t pin1 = (highPinPIN & (1<<IO_H));
     if(pin0 != encoderPinValues[0]) {
       rotary_encoder_change(0, pin0);
     } else if(pin1 != encoderPinValues[1]) {

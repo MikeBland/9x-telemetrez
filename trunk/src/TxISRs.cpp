@@ -19,7 +19,7 @@ ISR(USART0__UDRE_vect) {
                 UDR0 = SwitchBuf[SwitchBuf_count++];
                 U1TXstate = sendSwitchpacket;
 #ifdef BLUETOOTH
-                pin16DDR &= ~(1<<IO16); // disable output to bluetooth
+                pinFDDR &= ~(1<<IO_F); // disable output to bluetooth
 #endif
                 break;
             }
@@ -28,7 +28,7 @@ ISR(USART0__UDRE_vect) {
                     break;
             }
 #ifdef BLUETOOTH
-            pin16DDR |= (1<<IO16); // enable output to bluetooth
+            pinFDDR |= (1<<IO_F); // enable output to bluetooth
 #endif
             UDR0 = NinexTx_RB.front(); // load next byte from buffer
             NinexTx_RB.pop(); // remove the byte from the buffer
