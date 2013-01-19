@@ -10,11 +10,11 @@ This is how to setup a Bluetooth connection between the 9x and an Android phone 
 First here is the parts you will need to complete this:
  * A Bluetooth module.  I like the one from Sparkfun.com (https://www.sparkfun.com/products/10253) 
  * next you will need a 3.3V regulator.  The Sparkfun module only works on 3.3V so we need to step the 5V down a bit
- * 3 resistors,  a 6.8k ohm, a 1k ohm, and a 20k ohm
+ * 3 resistors,  a 10k ohm, a 1k ohm, and a 20k ohm
  * some wire to make connections
 
 ===Bluetooth module setup===
-Start by setting up the Bluetooth module.  I was able to attach the 3.3V regulator directly to my module.  Looking at the back of the module, or the side where you can make solder connections.  And with the antenna to the top.  The right side row of connectors, the bottom 2 are for power.  The lowest one, farthest from the antenna, is ground.  And the one immediately above it is 3.3V input.  Next I attached the 20k ohm resistor from the ground pin across to the lowest pin on the opposite side.  This is the data input to the module.  Also to the data input pin attach the 6.8k resistor.  You should now have 3 connections to your Bluetooth module.  The data input connection, which is the unconnected end of the 6.8k resistor.  Ground and 5V in, which goes to the unconnected pin of the 3.3V regulator.
+Start by setting up the Bluetooth module.  I was able to attach the 3.3V regulator directly to my module.  Looking at the back of the module, or the side where you can make solder connections.  And with the antenna to the top.  The right side row of connectors, the bottom 2 are for power.  The lowest one, farthest from the antenna, is ground.  And the one immediately above it is 3.3V input.  Next I attached the 20k ohm resistor from the ground pin across to the lowest pin on the opposite side.  This is the data input to the module.  Also to the data input pin attach the 6.8k resistor.  You should now have 3 connections to your Bluetooth module.  The data input connection, which is the unconnected end of the 10k resistor.  Ground and 5V in, which goes to the unconnected pin of the 3.3V regulator.
 ===Telemetrez board setup===
 Take the 1k resistor and connect it between pin 1 and pin17 of the attiny1634.  If you are looking at the Telemetrez so the expansion IO is at the top, then pin 1 of the '1634 is the top left pin.  And pin 17 is on the opposite side 3rd down from the top.
 ===Connecting it all together===
