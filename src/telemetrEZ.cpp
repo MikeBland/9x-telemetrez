@@ -124,6 +124,7 @@ int main() {
                     flags.Startup = 1;
                     UCSR0B |= (1<<TXEN0)|(1<<UDRIE0); // reenable the Tx
                     sendSwitchesCount = systemMillis + 3;
+		    UDR0 = 0xFF; // send a byte to set up transmit complete flag
 #ifdef DEBUG
                     lowPinPORT &= ~(1<<IO_C);
 #endif

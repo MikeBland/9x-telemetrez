@@ -15,12 +15,14 @@ ISR(USART0__UDRE_vect) {
     switch(U1TXstate) {
         case TxIDLE:
             if(flags.switchto9x) { // if switch packet is ready to send
+#ifdef BLUETOOTH
+		while(!(UCSR0A & (1<<TXC0))); // wait for previous transmit to complete
+                pinFDDR |= (1<<IO_F); // disable output to bluetooth
+		UCSR0A |= (1<<TXC0); // clear the flag
+#endif
                 SwitchBuf_count = 0;
                 UDR0 = SwitchBuf[SwitchBuf_count++];
                 U1TXstate = sendSwitchpacket;
-#ifdef BLUETOOTH
-                pinFDDR &= ~(1<<IO_F); // disable output to bluetooth
-#endif
                 break;
             }
             if(NinexTx_RB.empty()) { // if the buffer is empty
@@ -28,7 +30,9 @@ ISR(USART0__UDRE_vect) {
                     break;
             }
 #ifdef BLUETOOTH
-            pinFDDR |= (1<<IO_F); // enable output to bluetooth
+            while(!(UCSR0A & (1<<TXC0))); // wait for previous transmit to complete
+            pinFDDR &= ~(1<<IO_F); // enable output to bluetooth
+            UCSR0A |= (1<<TXC0); // clear the flag
 #endif
             UDR0 = NinexTx_RB.front(); // load next byte from buffer
             NinexTx_RB.pop(); // remove the byte from the buffer
