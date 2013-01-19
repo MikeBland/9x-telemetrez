@@ -5,6 +5,7 @@
  *      Author: hank
  */
 #include <avr/io.h>
+#include <avr/iotn1634.h> // need for avr-gcc 4.7.0
 #ifndef F_CPU
 #define F_CPU 8000000
 #endif

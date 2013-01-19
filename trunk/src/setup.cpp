@@ -45,7 +45,7 @@ void setup(void) {
     UCSR1B = (1<<RXEN1)|(1<<RXCIE1)|(1<<TXEN1); // enables the Rx, and Rx interrupt
 
 #ifdef BLUETOOTH
-    pinFDDR &= ~(1<<IO_F); // disable output to bluetooth
+    pinFDDR |= (1<<IO_F); // disable output to bluetooth
     pinFPORT |= (1<<IO_F); // set the output high, pull-ups are on a different register 
                             // this chip, so high-impedance output should not be driven
     pinFPUE &= ~(1<<IO_F); // make sure pull-up is off

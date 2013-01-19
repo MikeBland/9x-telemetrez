@@ -19,6 +19,7 @@
 #define TELEMETREZ_H
 
 #include <avr/io.h>
+#include <avr/iotn1634.h> // need for avr-gcc 4.7.0
 #include <avr/interrupt.h>
 #include "ringbuffer.h"
 #include "I2C_bb.h"
@@ -62,7 +63,7 @@
 // output to a bluetooth module
 #define BLUETOOTH
 // uncomment the following line to use an I2C EEPROM (uses IO_B and IO_A)
-//#define EEPROM
+#define EEPROM
 
 // rotary encoder A, B get connected to IO_H and IO_G, the button gets connected to IO_I
 #define ROTARYENCODER // enable the use of a rotary encoder

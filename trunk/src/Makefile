@@ -26,7 +26,8 @@
 #----------------------------------------------------------------------------
 
 # MCU name
-MCU = attiny1634
+MCU2 = attiny1634 
+MCU = avr35 # using avr-gcc version 4.7.0
 
 # Processor frequency.
 #F_CPU = 1000000
@@ -112,7 +113,8 @@ CFLAGS += -Wa,-adhlns=$(<:%.c=$(OBJDIR)/%.lst)
 CFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
 CFLAGS += $(CSTANDARD)
 
-CFLAGS+= --combine -fwhole-program
+#CFLAGS+= --combine # unused in avr-gcc 4.7.0
+CFLAGS+= -fwhole-program
 
 #---------------- Compiler Options C++ ----------------
 #  -g*:          generate debugging information
@@ -341,8 +343,8 @@ end:
 # Display size of file.
 HEXSIZE = $(SIZE) --target=$(FORMAT) $(TARGET).hex
 #ELFSIZE = $(SIZE) -A $(TARGET).elf
-ELFSIZE = $(SIZE) --mcu=$(MCU) --format=avr $(TARGET).elf
-AVRMEM = avr-mem.sh $(TARGET).elf $(MCU)
+ELFSIZE = $(SIZE) --mcu=$(MCU2) --format=avr $(TARGET).elf
+AVRMEM = avr-mem.sh $(TARGET).elf $(MCU2)
 
 sizebefore:
 	@if test -f $(TARGET).elf; then echo; echo $(MSG_SIZE_BEFORE); $(ELFSIZE); \
