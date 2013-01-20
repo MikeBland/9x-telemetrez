@@ -1,4 +1,4 @@
-#How to make Bluetooth work with the Telemetrez
+#summary How to make Bluetooth work with the Telemetrez
 
 = Introduction =
 
