@@ -1,4 +1,4 @@
-#This page details the rotary encoder connections.
+#summary This page details the rotary encoder connections.
 
 = Introduction =
 
