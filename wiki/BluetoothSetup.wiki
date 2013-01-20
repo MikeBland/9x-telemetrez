@@ -2,7 +2,7 @@
 
 = Introduction =
 
-This is how to setup a Bluetooth connection between the 9x and an Android phone using a Telemetrez board.
+This is how to setup a Bluetooth connection between the 9x and an Android phone using a Telemetrez board.  After completing this you will have telemetry data available on both the 9x and your Android phone.
 
 
 = Details =
