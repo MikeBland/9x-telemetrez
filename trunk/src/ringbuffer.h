@@ -3,7 +3,7 @@
 #ifndef RING_BUFFER_INCLUDED
 #define RING_BUFFER_INCLUDED
 
-#include <avr/io.h>
+#include "io.h"
 
 #define maxSize 60
 

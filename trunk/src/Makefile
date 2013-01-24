@@ -26,8 +26,8 @@
 #----------------------------------------------------------------------------
 
 # MCU name
-MCU2 = attiny1634 
-MCU = avr35 # using avr-gcc version 4.7.0
+SIZE_MCU = attiny1634 
+MCU = avr35
 
 # Processor frequency.
 #F_CPU = 1000000
@@ -126,22 +126,22 @@ CFLAGS+= -fwhole-program
 CPPFLAGS = -g$(DEBUG)
 CPPFLAGS += $(CPPDEFS)
 CPPFLAGS += -O$(OPT)
-#CPPFLAGS += -mint8
-#CPPFLAGS += -mshort-calls
-#CPPFLAGS += -funsigned-char
-#CPPFLAGS += -funsigned-bitfields
-#CPPFLAGS += -fpack-struct
-#CPPFLAGS += -fshort-enums
-#CPPFLAGS += -fno-exceptions
-#CPPFLAGS += -fno-unit-at-a-time
+CPPFLAGS += -mint8 #
+CPPFLAGS += -mshort-calls #
+CPPFLAGS += -funsigned-char #
+CPPFLAGS += -funsigned-bitfields #
+CPPFLAGS += -fpack-struct #
+CPPFLAGS += -fshort-enums #
+CPPFLAGS += -fno-exceptions #
+CPPFLAGS += -fno-unit-at-a-time #
 CPPFLAGS += -Wall
-#CPPFLAGS += -Wstrict-prototypes
-#CFLAGS += -Wundef
-#CPPFLAGS += -Wunreachable-code
-#CPPFLAGS += -Wsign-compare
-#CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(OBJDIR)/%.lst)
+CFLAGS += -Wundef #
+CPPFLAGS += -Wunreachable-code #
+CPPFLAGS += -Wsign-compare #
+CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(OBJDIR)/%.lst) #
 CPPFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
-#CPPFLAGS += $(CSTANDARD)
+#CPPFLAGS += $(CSTANDARD) #
+CPPFLAGS += -maccumulate-args -mstrict-X
 
 #---------------- Assembler Options ----------------
 #  -Wa,...:   tell GCC to pass this to the assembler.
@@ -343,8 +343,8 @@ end:
 # Display size of file.
 HEXSIZE = $(SIZE) --target=$(FORMAT) $(TARGET).hex
 #ELFSIZE = $(SIZE) -A $(TARGET).elf
-ELFSIZE = $(SIZE) --mcu=$(MCU2) --format=avr $(TARGET).elf
-AVRMEM = avr-mem.sh $(TARGET).elf $(MCU2)
+ELFSIZE = $(SIZE) --mcu=$(SIZE_MCU) --format=avr $(TARGET).elf
+AVRMEM = avr-mem.sh $(TARGET).elf $(SIZE_MCU)
 
 sizebefore:
 	@if test -f $(TARGET).elf; then echo; echo $(MSG_SIZE_BEFORE); $(ELFSIZE); \

@@ -18,8 +18,8 @@
 #ifndef TELEMETREZ_H
 #define TELEMETREZ_H
 
-#include <avr/io.h>
-#include <avr/iotn1634.h> // need for avr-gcc 4.7.0
+#include "io.h"
+
 #include <avr/interrupt.h>
 #include "ringbuffer.h"
 #include "I2C_bb.h"
@@ -38,7 +38,7 @@
 #define lowPinPORT PORTA
 #define lowPinPIN PINA
 #define lowPinPUE PUEA
-#define IO_E 6 // PA6 *DEBUG* 20ms toggle output
+#define IO_E 6 // PA6 *DEBUG* 5ms toggle output
 #define IO_D 5 // PA5 *DEBUG* main toggle output
 #define IO_C 4 // PA4 *DEBUG* goes high is ppm signal is lost
 #define IO_B 3 // PA3 eeprom
