@@ -1,14 +1,16 @@
 #include "telemetrEZ.h"
 #include "externalVariables.h"
 
+static void CheckConnections(void);
+
 //processor initalization
 void setup(void) {
     // save some power, turn off unused peripherals
     PRR = (1<<PRTWI)|(1<<PRUSI)|(1<<PRADC);
     ACSRA = (1<<ACD); // analog comparator
 
+    CheckConnections();
     // set up ports
-    
     switch_DDR &= ~((1<<AIL_sw)|(1<<THR_sw)); // switches are inputs
     switch_PUE |= (1<<AIL_sw)|(1<<THR_sw); // enable pull-ups
 
@@ -71,4 +73,16 @@ void setup(void) {
 
     sei();
 }
+
+
+/* This function checks if the connectors are plugged in backward to the Tez */
+void CheckConnections(void) {
+  connectorCheck = 0;
+  //setup and check AIL switch_DDR
+  // if AIL switch bad then connectorCheck=1
+  // setup and check THR switch_DDR
+  // if THR switch bad then connectorCheck=2
+  // if both are bad then connectorCheck=3
+}
+
 

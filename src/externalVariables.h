@@ -19,6 +19,7 @@ extern volatile ring_buffer NinexTx_RB;
 
 extern volatile flgRegs flags;
 extern volatile uint8_t ppmReady;
+extern uint8_t connectorCheck;
 
 #ifdef ROTARYENCODER
 extern volatile uint8_t encoderPinValues[];
