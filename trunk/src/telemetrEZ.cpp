@@ -20,6 +20,13 @@
 #include "telemetrEZ.h"
 #include <avr/wdt.h>
 
+FUSES = 
+{
+  LFUSE_DEFAULT, // .low
+  HFUSE_DEFAULT, // .high
+  EFUSE_DEFAULT // .extended
+};
+    
 // *** Buffers ***
 #define BufSize 20
 volatile uint8_t FrskyRxBuf[BufSize];
@@ -40,12 +47,15 @@ volatile ring_buffer NinexTx_RB;
 
 volatile flgRegs flags;
 uint8_t clockUpdateCount=0;
+uint8_t connectorCheck;
 
 #ifdef ROTARYENCODER
 // variables for the rotary encoder
 volatile uint8_t encoderPinValues[] = {1,1};
 volatile uint8_t encoderPosition = 0;
 volatile uint8_t intStarted=0;
+
+static void rotary_encoder_change(uint8_t changedPin, uint8_t value);
 #endif
 #ifdef DEBUG
 uint32_t ProdTestMillis = 0;
@@ -54,7 +64,6 @@ const uint32_t ProdTestMax = 1000;
 #endif
 
 extern void setup(void);
-void rotary_encoder_change(uint8_t changedPin, uint8_t value);
 
 int main() {
     CCP = 0xD8; // Unlock protected IO signature
@@ -173,7 +182,7 @@ int main() {
         if(flags.FrskyRxBufferReady) {
             if(sendTo9xEnable) {
                 if(NinexTx_RB.bytesFree() > 19) {  // wait for buffer to have free space
-                    for(int i=0; i < numPktBytesFrsky; i++) { // add new packet to Tx buffer
+                    for(uint8_t i=0; i < numPktBytesFrsky; i++) { // add new packet to Tx buffer
                       NinexTx_RB.push(FrskyRxBuf[i]);
                     }
                     cli();
@@ -191,7 +200,7 @@ int main() {
     // forward packet to Frsky module
         if(flags.NinexRxBufferReady) { 
             if(FrskyTx_RB.bytesFree() > 19) {  // wait for buffer to have free space
-                for(int i=0; i < numPktBytes9x; i++) { // add new packet to Tx buffer
+                for(uint8_t i=0; i < numPktBytes9x; i++) { // add new packet to Tx buffer
                   FrskyTx_RB.push(NinexRxBuf[i]);
                 }
                 cli();
@@ -217,11 +226,31 @@ int main() {
 	      ProdTestMillis += ProdTestInterval;
 	      highPinPORT ^= (1<<IO_J);
 	      if(ProdTestMillis > ProdTestMax) {
-		    flags.ProdTest = 1;
-            highPinPORT &= ~(1<<IO_J);
-          }
+		flags.ProdTest = 1;
+		highPinPORT &= ~(1<<IO_J);
+	      }
+	  }
+	} else {
+	  /* Check connectors blink error if backward */
+	  if(systemMillis > ProdTestMillis) {
+	    if(connectorCheck == 4) { // comms not working
+/* TODO: need to add check for comms */
+	      highPinPORT ^= (1<<IO_J);
+	      ProdTestMillis += 5; // fast second flashing, 100ms
+	    } else if(connectorCheck == 1) { // 5-pin connector backward
+	      highPinPORT ^= (1<<IO_J);
+	      ProdTestMillis += 25; // half second flashing
+	    } else if(connectorCheck == 2) { // 12-pin connector backward
+	      highPinPORT ^= (1<<IO_J);
+	      ProdTestMillis += 50; // one second flashing
+	    } else if(connectorCheck == 3) { // both connectors backward
+	      highPinPORT ^= (1<<IO_J);
+	      ProdTestMillis += 100; // two second flashing
+	    } else
+	      highPinPORT &= ~(1<<IO_J); // turn the LED off
 	  }
 	}
+	    
 #endif 
 #ifdef ROTARYENCODER
     // check if rotary encoder has been moved
