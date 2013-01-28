@@ -207,6 +207,10 @@ int main() {
                 UCSR1B |= (1<<UDRIE1); // enable interrupt to send bytes
                 flags.NinexRxBufferReady = 0; // Signal Rx buffer is ok to receive
                 sei(); // enable interrupts
+		if(connectorCheck > 5) {
+		  // TODO: check packet is a setup packet from the 9x
+		  connectorCheck -= 10; // packet received from 9x
+		}
             }
         }
 
@@ -233,8 +237,7 @@ int main() {
 	} else {
 	  /* Check connectors blink error if backward */
 	  if(systemMillis > ProdTestMillis) {
-	    if(connectorCheck == 4) { // comms not working
-/* TODO: need to add check for comms */
+	    if(connectorCheck > 5) { // comms not working
 	      highPinPORT ^= (1<<IO_J);
 	      ProdTestMillis += 5; // fast second flashing, 100ms
 	    } else if(connectorCheck == 1) { // 5-pin connector backward
