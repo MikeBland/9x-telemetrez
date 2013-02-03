@@ -23,6 +23,8 @@
 #include <avr/interrupt.h>
 #include "ringbuffer.h"
 #include "I2C_bb.h"
+#define F_CPU 8000000 // CPU speed at run time
+#include <util/delay.h>
 
 // Frsky side is USART1
 // 9x side is USART0
@@ -72,7 +74,6 @@
 // this also includes the production test code to flash an led
 #define DEBUG
 
-#define F_CPU 8000000 // CPU speed at run time
 #define BAUD 9600  // USART Baud rate
 #include <util/setbaud.h> // this will calculate the proper config values
 

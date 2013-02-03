@@ -1,15 +1,13 @@
 #include "telemetrEZ.h"
 #include "externalVariables.h"
 
-static void CheckConnections(void);
-
 //processor initalization
 void setup(void) {
+
     // save some power, turn off unused peripherals
     PRR = (1<<PRTWI)|(1<<PRUSI)|(1<<PRADC);
     ACSRA = (1<<ACD); // analog comparator
 
-    CheckConnections();
     // set up ports
     switch_DDR &= ~((1<<AIL_sw)|(1<<THR_sw)); // switches are inputs
     switch_PUE |= (1<<AIL_sw)|(1<<THR_sw); // enable pull-ups
@@ -74,34 +72,4 @@ void setup(void) {
     sei();
 }
 
-/* This function checks if the connectors are plugged in backward to the Tez */
-void CheckConnections(void) {
-  connectorCheck = 10;
-  switch_PUE &= ~((1<<AIL_sw)|(1<<THR_sw)); // pull-ups off
-  switch_PORT &= ~((1<<AIL_sw)|(1<<THR_sw)); // set the pins lowPinDDR
-  switch_DDR |= (1<<AIL_sw)|(1<<THR_sw); // outputs on and lowPinDDR
-
-  //check 5-pin connector
-  if( !(PINA & (1<<7)) ) {
-    switch_PORT |= (1<<AIL_sw);
-    if(PINA & (1<<7)) {
-      switch_PORT &= ~(1<<AIL_sw);
-      if( !(PINA & (1<<7)) )
-	connectorCheck += 1;
-    }
-  }
-  //check 12-pin connector
-  if( !(PINB & (1<<0)) ) {
-    switch_PORT |= (1<<THR_sw);
-    if(PINB & (1<<0)) {
-      switch_PORT &= ~(1<<THR_sw);
-      if( !(PINB & (1<<0)) )
-	connectorCheck += 2;
-    }
-  }
-  
-  // if the 5-pin connector is reversed connectorCheck will = 1
-  // if the 12-pin connector is reversed connectorCheck will = 2
-  // if both are reversed then connectorCheck = 3
-}
 
