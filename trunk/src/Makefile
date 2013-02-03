@@ -126,19 +126,19 @@ CFLAGS+= -fwhole-program
 CPPFLAGS = -g$(DEBUG)
 CPPFLAGS += $(CPPDEFS)
 CPPFLAGS += -O$(OPT)
-CPPFLAGS += -mint8 #
-CPPFLAGS += -mshort-calls #
-CPPFLAGS += -funsigned-char #
-CPPFLAGS += -funsigned-bitfields #
-CPPFLAGS += -fpack-struct #
-CPPFLAGS += -fshort-enums #
-CPPFLAGS += -fno-exceptions #
-CPPFLAGS += -fno-unit-at-a-time #
+#CPPFLAGS += -mint8 #
+#CPPFLAGS += -mshort-calls #
+#CPPFLAGS += -funsigned-char #
+#CPPFLAGS += -funsigned-bitfields #
+#CPPFLAGS += -fpack-struct #
+#CPPFLAGS += -fshort-enums #
+#CPPFLAGS += -fno-exceptions #
+#CPPFLAGS += -fno-unit-at-a-time #
 CPPFLAGS += -Wall
-CFLAGS += -Wundef #
-CPPFLAGS += -Wunreachable-code #
-CPPFLAGS += -Wsign-compare #
-CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(OBJDIR)/%.lst) #
+#CFLAGS += -Wundef #
+#CPPFLAGS += -Wunreachable-code #
+#CPPFLAGS += -Wsign-compare #
+#CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(OBJDIR)/%.lst) #
 CPPFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
 #CPPFLAGS += $(CSTANDARD) #
 CPPFLAGS += -maccumulate-args -mstrict-X
@@ -420,7 +420,7 @@ extcoff: $(TARGET).elf
 %.hex: %.elf
 	@echo
 	@echo $(MSG_FLASH) $@
-	$(OBJCOPY) -O $(FORMAT) -R .eeprom $< $@
+	$(OBJCOPY) -O $(FORMAT) -R .eeprom -R .fuse -R .lock $< $@
 
 %.eep: %.elf
 	@echo
