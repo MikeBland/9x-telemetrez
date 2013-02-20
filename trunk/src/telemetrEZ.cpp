@@ -37,7 +37,6 @@ volatile uint8_t numPktBytes9x = 0;
 uint32_t sendSwitchesCount;
 volatile uint32_t lastPPMchange = 0;
 volatile uint16_t PPMpulseTime;
-volatile uint32_t systemMillis = 0;
 uint32_t reenableTimer;
 volatile uint8_t sendTo9xEnable = 0; // It is ok to send packets to the 9x
 volatile uint8_t ppmReady = 0;
@@ -45,7 +44,7 @@ volatile uint8_t ppmReady = 0;
 volatile ring_buffer FrskyTx_RB; // ring buffers for the pass thru
 volatile ring_buffer NinexTx_RB;
 
-volatile flgRegs flags;
+//volatile flgRegs flags;
 uint8_t clockUpdateCount=0;
 uint8_t connectorCheck;
 
@@ -64,6 +63,7 @@ const uint32_t ProdTestMax = 1000;
 #endif
 
 extern void setup(void);
+extern uint32_t millis(void);
 
 int main() {
     CCP = 0xD8; // Unlock protected IO signature
@@ -82,13 +82,13 @@ int main() {
     SwitchBuf[0] = 0x1B; // switches escape character
     SwitchBuf[1] = 1; // number of bytes in switch packet
 
-    sendSwitchesCount = systemMillis + 3;
-    lastPPMchange = systemMillis + 1000; // 5s into the future
+    sendSwitchesCount = millis() + 3;
+    lastPPMchange = millis() + 1000; // 5s into the future
 
     while(1) {
 //	wdt_reset(); // reset the watchdog timer
     // send switch values every 20ms
-        if(sendTo9xEnable && (sendSwitchesCount < systemMillis)) {
+        if(sendTo9xEnable && (sendSwitchesCount < millis())) {
             sendSwitchesCount += 4; // send every 20ms
             uint8_t tmp = 0b11000000; // setup for sending
             if(bit_is_clear(switch_PIN, AIL_sw)) // switch is active
@@ -115,7 +115,7 @@ int main() {
             sei(); // enable interrupts
         }
     // check if ppm stream is active, stop if PPM lost
-        if(((lastPPMchange + 6) < systemMillis) && (PPMinPIN & (1<<PPMin)) ) { 
+        if(((lastPPMchange + 6) < millis()) && (PPMinPIN & (1<<PPMin)) ) { 
             // it has been > 30 ms since last change and the PPM pin is high
             // if the 9x is in simulator or student mode the PPM line will be low
             // stop Tx to 9x
@@ -124,15 +124,15 @@ int main() {
             lowPinPORT |= (1<<IO_C); // this pin will go high if it thinks the 9x is being programmed
             sendTo9xEnable = 0; // disable sending to 9x side
             NinexTx_RB.clear(); // clear the buffer
-            reenableTimer = systemMillis + 3000ul;
+            reenableTimer = millis() + 3000ul;
         } else {
             if(!sendTo9xEnable) {
                 // ppm is back, reenable Tx to 9x
-                if(reenableTimer < systemMillis || !flags.Startup) { // wait 15 seconds before sending to 9x again
+                if(reenableTimer < millis() || !flags.Startup) { // wait 15 seconds before sending to 9x again
                     sendTo9xEnable = 1;
                     flags.Startup = 1;
                     UCSR0B |= (1<<TXEN0)|(1<<UDRIE0); // reenable the Tx
-                    sendSwitchesCount = systemMillis + 3;
+                    sendSwitchesCount = millis() + 3;
 		    UDR0 = 0xFF; // send a byte to set up transmit complete flag
 #ifdef DEBUG
                     lowPinPORT &= ~(1<<IO_C);
@@ -182,10 +182,10 @@ int main() {
         if(flags.FrskyRxBufferReady) {
             if(sendTo9xEnable) {
                 if(NinexTx_RB.bytesFree() > 19) {  // wait for buffer to have free space
+                    cli();
                     for(uint8_t i=0; i < numPktBytesFrsky; i++) { // add new packet to Tx buffer
                       NinexTx_RB.push(FrskyRxBuf[i]);
                     }
-                    cli();
                     UCSR0B |= (1<<UDRIE0); // enable interrupt to send bytes
                     flags.FrskyRxBufferReady = 0; // Signal Rx buffer is ok to receive
                     sei(); // enable interrupts
@@ -200,10 +200,10 @@ int main() {
     // forward packet to Frsky module
         if(flags.NinexRxBufferReady) { 
             if(FrskyTx_RB.bytesFree() > 19) {  // wait for buffer to have free space
+                cli();
                 for(uint8_t i=0; i < numPktBytes9x; i++) { // add new packet to Tx buffer
                   FrskyTx_RB.push(NinexRxBuf[i]);
                 }
-                cli();
                 UCSR1B |= (1<<UDRIE1); // enable interrupt to send bytes
                 flags.NinexRxBufferReady = 0; // Signal Rx buffer is ok to receive
                 sei(); // enable interrupts
@@ -222,7 +222,7 @@ int main() {
 #ifdef DEBUG
         lowPinPORT ^= (1<<IO_D); // timing test for main
 	if(!flags.ProdTest) {
-	  if(systemMillis > ProdTestMillis) {
+	  if(millis() > ProdTestMillis) {
 	      ProdTestMillis += ProdTestInterval;
 	      highPinPORT ^= (1<<IO_J);
 	      if(ProdTestMillis > ProdTestMax) {
@@ -244,7 +244,7 @@ int main() {
       rotary_encoder_change(1, pin1);
     }
 	if(!flags.sendEncoder) {
-      if(systemMillis > ProdTestMillis) {
+      if(millis() > ProdTestMillis) {
     	  if(encoderPosition != 0) { // if the encoder was moved it must be attached
     	    flags.sendEncoder = 1;
     	    SwitchBuf[1] = 3; // number of bytes in switch and encoder packet

@@ -2,6 +2,8 @@
 #include "externalVariables.h"
 #include <util/delay.h>
 
+static volatile uint32_t systemMillis = 0;
+
 ISR(TIMER0_COMPA_vect) {
     systemMillis++;
 #ifdef DEBUG
@@ -9,8 +11,19 @@ ISR(TIMER0_COMPA_vect) {
 #endif
 }
 
+uint32_t millis(void) {
+  uint32_t m;
+  uint8_t cSREG = SREG;
+  
+  cli();
+  m = systemMillis;
+  SREG = cSREG;
+  
+  return m;
+}
+
 ISR(TIMER1_CAPT_vect) { // track changes to PPM stream
-    lastPPMchange = systemMillis;
+    lastPPMchange = millis();
 
 #ifdef CLOCK_ADJUST
     static uint16_t startTime, endTime;

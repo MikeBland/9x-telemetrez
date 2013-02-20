@@ -84,7 +84,7 @@
 
 #define CLOCK_ADJUST // to use self calibrating clock (uses PPM stream)
 
-struct flgRegs {
+typedef struct flgRegs {
     uint8_t sendSwitches:1; // trigger main to send switch states
     uint8_t switchto9x:1;   // currently sending switch states to 9x
     uint8_t PktReceived9x:1;    // packet received from 9x for here, needs processing
@@ -93,6 +93,7 @@ struct flgRegs {
     uint8_t Startup:1; // flag for startup to enable Tx to 9x side
     uint8_t ProdTest:1; // Only run the production test for a short period of time
     uint8_t sendEncoder:1; // if the encoder is connected send it's position
-};
+} flgRegs_t;
+#define flags (*(volatile flgRegs_t*)_SFR_MEM_ADDR(GPIOR0))
 
 #endif
