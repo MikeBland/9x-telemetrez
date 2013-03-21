@@ -1,0 +1,66 @@
+Index: setup.cpp
+===================================================================
+--- setup.cpp	(revision 75)
++++ setup.cpp	(working copy)
+@@ -14,6 +14,7 @@
+ 
+     lowPinDDR |= (1<<IO_E)|(1<<IO_D)|(1<<IO_C)|(1<<IO_B)|(1<<IO_A); // all outputs
+     lowPinPORT &= ~((1<<IO_E)|(1<<IO_D)|(1<<IO_C)|(1<<IO_B)|(1<<IO_A)); // all set low
++    lowPinPORT |= (1<<IO_A); // enable pull-up
+ #ifdef DEBUG
+     highPinDDR |= (1<<IO_J); // output for production test
+ #endif
+Index: telemetrEZ.h
+===================================================================
+--- telemetrEZ.h	(revision 75)
++++ telemetrEZ.h	(working copy)
+@@ -65,7 +65,7 @@
+ // output to a bluetooth module
+ #define BLUETOOTH
+ // uncomment the following line to use an I2C EEPROM (uses IO_B and IO_A)
+-#define EEPROM
++//#define EEPROM
+ 
+ // rotary encoder A, B get connected to IO_H and IO_G, the button gets connected to IO_I
+ #define ROTARYENCODER // enable the use of a rotary encoder
+Index: Makefile
+===================================================================
+--- Makefile	(revision 75)
++++ Makefile	(working copy)
+@@ -135,12 +135,12 @@
+ #CPPFLAGS += -fno-exceptions #
+ #CPPFLAGS += -fno-unit-at-a-time #
+ CPPFLAGS += -Wall
+-#CFLAGS += -Wundef #
++CPPFLAGS += -Wextra
++#CPPFLAGS += -Wundef #
+ #CPPFLAGS += -Wunreachable-code #
+ #CPPFLAGS += -Wsign-compare #
+ #CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(OBJDIR)/%.lst) #
+ CPPFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
+-#CPPFLAGS += $(CSTANDARD) #
+ CPPFLAGS += -maccumulate-args -mstrict-X
+ 
+ #---------------- Assembler Options ----------------
+Index: TxISRs.cpp
+===================================================================
+--- TxISRs.cpp	(revision 75)
++++ TxISRs.cpp	(working copy)
+@@ -18,6 +18,8 @@
+ #ifdef BLUETOOTH
+ 		while(!(UCSR0A & (1<<TXC0))); // wait for previous transmit to complete
+                 pinFDDR |= (1<<IO_F); // disable output to bluetooth
++		lowPinDDR &= ~(1<<IO_A);
++		lowPinPORT |= (1<<IO_A);
+ 		UCSR0A |= (1<<TXC0); // clear the flag
+ #endif
+                 SwitchBuf_count = 0;
+@@ -32,6 +34,8 @@
+ #ifdef BLUETOOTH
+             while(!(UCSR0A & (1<<TXC0))); // wait for previous transmit to complete
+             pinFDDR &= ~(1<<IO_F); // enable output to bluetooth
++	    lowPinDDR |= (1<<IO_A);
++	    lowPinPORT &= ~(1<<IO_A);
+             UCSR0A |= (1<<TXC0); // clear the flag
+ #endif
+             UDR0 = NinexTx_RB.front(); // load next byte from buffer

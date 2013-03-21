@@ -135,12 +135,12 @@ CPPFLAGS += -O$(OPT)
 #CPPFLAGS += -fno-exceptions #
 #CPPFLAGS += -fno-unit-at-a-time #
 CPPFLAGS += -Wall
-#CFLAGS += -Wundef #
+CPPFLAGS += -Wextra
+#CPPFLAGS += -Wundef #
 #CPPFLAGS += -Wunreachable-code #
 #CPPFLAGS += -Wsign-compare #
 #CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(OBJDIR)/%.lst) #
 CPPFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
-#CPPFLAGS += $(CSTANDARD) #
 CPPFLAGS += -maccumulate-args -mstrict-X
 
 #---------------- Assembler Options ----------------
