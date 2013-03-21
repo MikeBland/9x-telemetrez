@@ -23,25 +23,6 @@ Index: telemetrEZ.h
  
  // rotary encoder A, B get connected to IO_H and IO_G, the button gets connected to IO_I
  #define ROTARYENCODER // enable the use of a rotary encoder
-Index: Makefile
-===================================================================
---- Makefile	(revision 75)
-+++ Makefile	(working copy)
-@@ -135,12 +135,12 @@
- #CPPFLAGS += -fno-exceptions #
- #CPPFLAGS += -fno-unit-at-a-time #
- CPPFLAGS += -Wall
--#CFLAGS += -Wundef #
-+CPPFLAGS += -Wextra
-+#CPPFLAGS += -Wundef #
- #CPPFLAGS += -Wunreachable-code #
- #CPPFLAGS += -Wsign-compare #
- #CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(OBJDIR)/%.lst) #
- CPPFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
--#CPPFLAGS += $(CSTANDARD) #
- CPPFLAGS += -maccumulate-args -mstrict-X
- 
- #---------------- Assembler Options ----------------
 Index: TxISRs.cpp
 ===================================================================
 --- TxISRs.cpp	(revision 75)
