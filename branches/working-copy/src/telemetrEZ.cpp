@@ -89,7 +89,7 @@ int main() {
     lastPPMchange = millis() + 1000; // 5s into the future
 
     while(1) {
-//	wdt_reset(); // reset the watchdog timer
+	wdt_reset(); // reset the watchdog timer
     // send switch values every 20ms
         if(sendTo9xEnable && (sendSwitchesCount < millis())) {
             sendSwitchesCount += 4; // send every 20ms
