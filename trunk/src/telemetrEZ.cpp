@@ -78,8 +78,8 @@ int main() {
       I2C_Init();  // start I2C bus on pins IO_B and IO_A
 #endif
       lowPinPORT |= (1<<IO_A); // enable pull-up
-    WDTCSR |= (1<<WDP3)|(1<<WDP0);  // set 64ms timeout for watchdog
-    WDTCSR |= (1<<WDE);  // enable the watchdog
+//    WDTCSR |= (1<<WDP3)|(1<<WDP0);  // set 64ms timeout for watchdog
+//    WDTCSR |= (1<<WDE);  // enable the watchdog
 
     // these never change, so they can be initalized here
     SwitchBuf[0] = 0x1B; // switches escape character
