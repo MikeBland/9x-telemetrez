@@ -61,6 +61,8 @@ uint32_t ProdTestMillis = 0;
 const uint32_t ProdTestInterval = 25;
 const uint32_t ProdTestMax = 1000;
 #endif
+// IO_A
+uint32_t IOAtimeoutMillis = 0;
 
 extern void setup(void);
 extern uint32_t millis(void);
@@ -75,8 +77,9 @@ int main() {
 #ifdef EEPROM
       I2C_Init();  // start I2C bus on pins IO_B and IO_A
 #endif
-//    WDTCSR |= (1<<WDP3)|(1<<WDP0);  // set 64ms timeout for watchdog
-//    WDTCSR |= (1<<WDE);  // enable the watchdog
+      lowPinPORT |= (1<<IO_A); // enable pull-up
+    WDTCSR |= (1<<WDP3)|(1<<WDP0);  // set 64ms timeout for watchdog
+    WDTCSR |= (1<<WDE);  // enable the watchdog
 
     // these never change, so they can be initalized here
     SwitchBuf[0] = 0x1B; // switches escape character
@@ -190,12 +193,18 @@ int main() {
                     flags.FrskyRxBufferReady = 0; // Signal Rx buffer is ok to receive
                     sei(); // enable interrupts
                 }
+                lowPinDDR |= (1<<IO_A); // pull IO_A while packets are being received
+		lowPinPORT &= ~(1<<IO_A);
+		IOAtimeoutMillis = millis() + 200; // set timeout 1S into the future
             } else { // cannot send to 9x, just dump the packet
                 cli();
                 flags.FrskyRxBufferReady = 0; // Signal Rx buffer is ok to receive
                 sei();
             }
-        }
+        } else if(millis() > IOAtimeoutMillis) {
+	    lowPinDDR &= ~(1<<IO_A); // Reset to high-impedance
+	    lowPinPORT |= (1<<IO_A); // with pull-up enabled
+	}
 
     // forward packet to Frsky module
         if(flags.NinexRxBufferReady) { 
