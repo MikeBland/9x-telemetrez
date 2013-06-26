@@ -19,7 +19,9 @@
 
 #include "telemetrEZ.h"
 #include <avr/wdt.h>
-
+// Programming line using avrdude
+// sets fuses and flash, requires a copy of the telemetrEZ.hex file in the directory where it is run from
+// avrdude -cusbasp -Pusb -p attiny1634 -v -B10 -U efuse:w:0x07:m -U hfuse:w:0xDF:m -U lfuse:w:0x62:m -U flash:w:telemetrEZ.hex:a
 FUSES = 
 {
   LFUSE_DEFAULT, // .low
