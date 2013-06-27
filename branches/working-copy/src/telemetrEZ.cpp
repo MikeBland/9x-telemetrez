@@ -94,7 +94,7 @@ int main() {
 	wdt_reset(); // reset the watchdog timer
     // send switch values every 20ms
         if(sendTo9xEnable && (sendSwitchesCount < millis())) {
-            sendSwitchesCount += 4; // send every 20ms
+            sendSwitchesCount = millis() + 4; // send every 20ms
             uint8_t tmp = 0b11000000; // setup for sending
             if(bit_is_clear(switch_PIN, AIL_sw)) // switch is active
                 tmp &= ~(1<<7); // clear the bit
@@ -134,11 +134,13 @@ int main() {
             if(!sendTo9xEnable) {
                 // ppm is back, reenable Tx to 9x
                 if(reenableTimer < millis() || !flags.Startup) { // wait 15 seconds before sending to 9x again
+		    cli();
                     sendTo9xEnable = 1;
                     flags.Startup = 1;
                     UCSR0B |= (1<<TXEN0)|(1<<UDRIE0); // reenable the Tx
                     sendSwitchesCount = millis() + 3;
 		    UDR0 = 0xFF; // send a byte to set up transmit complete flag
+		    sei();
 #ifdef DEBUG
                     lowPinPORT &= ~(1<<IO_C);
 #endif
@@ -237,7 +239,9 @@ int main() {
 	      ProdTestMillis += ProdTestInterval;
 	      highPinPORT ^= (1<<IO_J);
 	      if(ProdTestMillis > ProdTestMax) {
+		cli();
 		flags.ProdTest = 1;
+		sei();
 		highPinPORT &= ~(1<<IO_J);
 	      }
 	  }
@@ -257,7 +261,9 @@ int main() {
 	if(!flags.sendEncoder) {
       if(millis() > ProdTestMillis) {
     	  if(encoderPosition != 0) { // if the encoder was moved it must be attached
+	    cli();
     	    flags.sendEncoder = 1;
+	    sei();
     	    SwitchBuf[1] = 3; // number of bytes in switch and encoder packet
           }
 	  } else {
