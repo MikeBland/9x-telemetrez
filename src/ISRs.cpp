@@ -35,11 +35,11 @@ ISR(TIMER1_CAPT_vect) { // track changes to PPM stream
             // pin is high, just passed the end of a sync pulse
             if(TIFR & (1<<TOV1)) { // timer overflowed result might be wrong, so skip this one
                 TCCR1B &= ~(1<<ICES1);  // next capture will be on falling edge
-                TIFR |= (1<<ICF1)|(1<<TOV1); // clear the flags
+                TIFR = (1<<ICF1)|(1<<TOV1); // clear the flags
             }  else {  
                 endTime = ICR1;
                 TCCR1B &= ~(1<<ICES1);  // next capture will be on falling edge
-                TIFR |= (1<<ICF1); // clear the flag
+                TIFR = (1<<ICF1); // clear the flag
                 PPMpulseTime = endTime - startTime; // get time of pulse
                 if((PPMpulseTime < 6500ul) && (PPMpulseTime > 700ul)) // check for valid pulse length
                     // Valid pulse will be 100us to 800us
@@ -49,7 +49,7 @@ ISR(TIMER1_CAPT_vect) { // track changes to PPM stream
             // pin is low, just passed the start of a sync pulse
             startTime = ICR1; // get time for start of pulse
             TCCR1B |= (1<<ICES1);  // next capture will be on rising edge
-            TIFR |= (1<<ICF1); // clear the flag
+            TIFR = (1<<ICF1); // clear the flag
         }
     } // end startDelay
 #endif
