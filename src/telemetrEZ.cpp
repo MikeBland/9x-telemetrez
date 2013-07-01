@@ -42,6 +42,7 @@ volatile uint16_t PPMpulseTime;
 uint32_t reenableTimer;
 volatile uint8_t sendTo9xEnable = 0; // It is ok to send packets to the 9x
 volatile uint8_t ppmReady = 0;
+uint8_t toggle=0;
 
 volatile ring_buffer FrskyTx_RB; // ring buffers for the pass thru
 volatile ring_buffer NinexTx_RB;
@@ -93,8 +94,10 @@ int main() {
     while(1) {
 	wdt_reset(); // reset the watchdog timer
     // send switch values every 20ms
-        if(sendTo9xEnable && (sendSwitchesCount < millis())) {
-            sendSwitchesCount = millis() + 4; // send every 20ms
+
+	uint32_t time = millis();
+        if(sendTo9xEnable && (sendSwitchesCount < time)) {
+            sendSwitchesCount = time + 3; // send every 20ms
             uint8_t tmp = 0b11000000; // setup for sending
             if(bit_is_clear(switch_PIN, AIL_sw)) // switch is active
                 tmp &= ~(1<<7); // clear the bit
@@ -233,17 +236,22 @@ int main() {
             sei();
         }
 #ifdef DEBUG
-        lowPinPORT ^= (1<<IO_D); // timing test for main
+	if(toggle++ % 2)  // timing test for main
+		lowPinPORT |= (1<<IO_D);
+	else
+		lowPinPORT &= ~(1<<IO_D);
+        //lowPinPORT ^= (1<<IO_D);
+
 	if(!flags.ProdTest) {
 	  if(millis() > ProdTestMillis) {
 	      ProdTestMillis += ProdTestInterval;
+	      cli();
 	      highPinPORT ^= (1<<IO_J);
 	      if(ProdTestMillis > ProdTestMax) {
-		cli();
 		flags.ProdTest = 1;
-		sei();
 		highPinPORT &= ~(1<<IO_J);
 	      }
+	      sei();
 	  }
 	}
 	    
