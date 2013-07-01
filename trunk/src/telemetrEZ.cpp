@@ -19,7 +19,9 @@
 
 #include "telemetrEZ.h"
 #include <avr/wdt.h>
-
+// Programming line using avrdude
+// sets fuses and flash, requires a copy of the telemetrEZ.hex file in the directory where it is run from
+// avrdude -cusbasp -Pusb -p attiny1634 -v -B10 -U efuse:w:0x07:m -U hfuse:w:0xDF:m -U lfuse:w:0x62:m -U flash:w:telemetrEZ.hex:a
 FUSES = 
 {
   LFUSE_DEFAULT, // .low
@@ -40,6 +42,7 @@ volatile uint16_t PPMpulseTime;
 uint32_t reenableTimer;
 volatile uint8_t sendTo9xEnable = 0; // It is ok to send packets to the 9x
 volatile uint8_t ppmReady = 0;
+uint8_t toggle=0;
 
 volatile ring_buffer FrskyTx_RB; // ring buffers for the pass thru
 volatile ring_buffer NinexTx_RB;
@@ -78,8 +81,8 @@ int main() {
       I2C_Init();  // start I2C bus on pins IO_B and IO_A
 #endif
       lowPinPORT |= (1<<IO_A); // enable pull-up
-//    WDTCSR |= (1<<WDP3)|(1<<WDP0);  // set 64ms timeout for watchdog
-//    WDTCSR |= (1<<WDE);  // enable the watchdog
+    WDTCSR |= (1<<WDP3)|(1<<WDP0);  // set 64ms timeout for watchdog
+    WDTCSR |= (1<<WDE);  // enable the watchdog
 
     // these never change, so they can be initalized here
     SwitchBuf[0] = 0x1B; // switches escape character
@@ -89,10 +92,12 @@ int main() {
     lastPPMchange = millis() + 1000; // 5s into the future
 
     while(1) {
-//	wdt_reset(); // reset the watchdog timer
+	wdt_reset(); // reset the watchdog timer
     // send switch values every 20ms
-        if(sendTo9xEnable && (sendSwitchesCount < millis())) {
-            sendSwitchesCount += 4; // send every 20ms
+
+	uint32_t time = millis();
+        if(sendTo9xEnable && (sendSwitchesCount < time)) {
+            sendSwitchesCount = time + 3; // send every 20ms
             uint8_t tmp = 0b11000000; // setup for sending
             if(bit_is_clear(switch_PIN, AIL_sw)) // switch is active
                 tmp &= ~(1<<7); // clear the bit
@@ -132,11 +137,13 @@ int main() {
             if(!sendTo9xEnable) {
                 // ppm is back, reenable Tx to 9x
                 if(reenableTimer < millis() || !flags.Startup) { // wait 15 seconds before sending to 9x again
+		    cli();
                     sendTo9xEnable = 1;
                     flags.Startup = 1;
                     UCSR0B |= (1<<TXEN0)|(1<<UDRIE0); // reenable the Tx
                     sendSwitchesCount = millis() + 3;
 		    UDR0 = 0xFF; // send a byte to set up transmit complete flag
+		    sei();
 #ifdef DEBUG
                     lowPinPORT &= ~(1<<IO_C);
 #endif
@@ -229,15 +236,22 @@ int main() {
             sei();
         }
 #ifdef DEBUG
-        lowPinPORT ^= (1<<IO_D); // timing test for main
+	if(toggle++ % 2)  // timing test for main
+		lowPinPORT |= (1<<IO_D);
+	else
+		lowPinPORT &= ~(1<<IO_D);
+        //lowPinPORT ^= (1<<IO_D);
+
 	if(!flags.ProdTest) {
 	  if(millis() > ProdTestMillis) {
 	      ProdTestMillis += ProdTestInterval;
+	      cli();
 	      highPinPORT ^= (1<<IO_J);
 	      if(ProdTestMillis > ProdTestMax) {
 		flags.ProdTest = 1;
 		highPinPORT &= ~(1<<IO_J);
 	      }
+	      sei();
 	  }
 	}
 	    
@@ -255,7 +269,9 @@ int main() {
 	if(!flags.sendEncoder) {
       if(millis() > ProdTestMillis) {
     	  if(encoderPosition != 0) { // if the encoder was moved it must be attached
+	    cli();
     	    flags.sendEncoder = 1;
+	    sei();
     	    SwitchBuf[1] = 3; // number of bytes in switch and encoder packet
           }
 	  } else {
