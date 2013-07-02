@@ -47,9 +47,7 @@ uint8_t toggle=0;
 volatile ring_buffer FrskyTx_RB; // ring buffers for the pass thru
 volatile ring_buffer NinexTx_RB;
 
-//volatile flgRegs flags;
 uint8_t clockUpdateCount=0;
-uint8_t connectorCheck;
 
 #ifdef ROTARYENCODER
 // variables for the rotary encoder
@@ -62,7 +60,7 @@ static void rotary_encoder_change(uint8_t changedPin, uint8_t value);
 #ifdef DEBUG
 uint32_t ProdTestMillis = 0;
 const uint32_t ProdTestInterval = 25;
-const uint32_t ProdTestMax = 1000;
+const uint32_t ProdTestMax = 975;
 #endif
 // IO_A
 uint32_t IOAtimeoutMillis = 0;
@@ -250,6 +248,10 @@ int main() {
 	      if(ProdTestMillis > ProdTestMax) {
 		flags.ProdTest = 1;
 		highPinPORT &= ~(1<<IO_J);
+		// set up timer 1 for input capture
+		// enable clock adjust and programming detect after production test is finished
+    		TIMSK |= (1<<ICIE1); // enable interrupt
+    		TCCR1B |= (1<<CS10); // start timer 1:1, interrupt on falling edge
 	      }
 	      sei();
 	  }
@@ -279,11 +281,13 @@ int main() {
       }
 	}
 #endif
-    // sleep to save energy here
-        // by default sleep mode is idle
-        MCUCR |= (1<<SE); // enable sleep
-        __asm__ __volatile__ ( "sleep" "\n\t" :: );
-        MCUCR &= ~(1<<SE); // disable sleep */
+	if(time == millis()) {
+    		// sleep to save energy here
+        	// by default sleep mode is idle
+        	MCUCR |= (1<<SE); // enable sleep
+        	__asm__ __volatile__ ( "sleep" "\n\t" :: );
+        	MCUCR &= ~(1<<SE); // disable sleep */
+	}
     } // end while(1)
 } // end main
 

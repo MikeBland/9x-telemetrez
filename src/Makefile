@@ -107,8 +107,8 @@ CFLAGS += -fshort-enums
 CFLAGS += -Wall
 CFLAGS += -Wstrict-prototypes
 CFLAGS += -Wundef
-#CFLAGS += -Wunreachable-code
-#CFLAGS += -Wsign-compare
+CFLAGS += -Wunreachable-code
+CFLAGS += -Wsign-compare
 CFLAGS += -Wa,-adhlns=$(<:%.c=$(OBJDIR)/%.lst)
 CFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
 CFLAGS += $(CSTANDARD)
@@ -136,9 +136,9 @@ CPPFLAGS += -O$(OPT)
 #CPPFLAGS += -fno-unit-at-a-time #
 CPPFLAGS += -Wall
 CPPFLAGS += -Wextra
-#CPPFLAGS += -Wundef #
-#CPPFLAGS += -Wunreachable-code #
-#CPPFLAGS += -Wsign-compare #
+CPPFLAGS += -Wundef #
+CPPFLAGS += -Wunreachable-code #
+CPPFLAGS += -Wsign-compare #
 #CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(OBJDIR)/%.lst) #
 CPPFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
 CPPFLAGS += -maccumulate-args -mstrict-X
