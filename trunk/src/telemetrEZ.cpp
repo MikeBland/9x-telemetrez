@@ -59,8 +59,8 @@ static void rotary_encoder_change(uint8_t changedPin, uint8_t value);
 #endif
 #ifdef DEBUG
 uint32_t ProdTestMillis = 0;
-const uint32_t ProdTestInterval = 25;
-const uint32_t ProdTestMax = 975;
+const uint32_t ProdTestInterval = 125;
+const uint32_t ProdTestMax = 4875;
 #endif
 // IO_A
 uint32_t IOAtimeoutMillis = 0;
@@ -86,8 +86,8 @@ int main() {
     SwitchBuf[0] = 0x1B; // switches escape character
     SwitchBuf[1] = 1; // number of bytes in switch packet
 
-    sendSwitchesCount = millis() + 3;
-    lastPPMchange = millis() + 1000; // 5s into the future
+    sendSwitchesCount = millis() + 19;
+    lastPPMchange = millis() + 5000; // 5s into the future
 
     while(1) {
 	wdt_reset(); // reset the watchdog timer
@@ -95,7 +95,7 @@ int main() {
 
 	uint32_t time = millis();
         if(sendTo9xEnable && (sendSwitchesCount < time)) {
-            sendSwitchesCount = time + 3; // send every 20ms
+            sendSwitchesCount = time + 19; // send every 20ms
             uint8_t tmp = 0b11000000; // setup for sending
             if(bit_is_clear(switch_PIN, AIL_sw)) // switch is active
                 tmp &= ~(1<<7); // clear the bit
@@ -121,7 +121,7 @@ int main() {
             sei(); // enable interrupts
         }
     // check if ppm stream is active, stop if PPM lost
-        if(((lastPPMchange + 6) < millis()) && (PPMinPIN & (1<<PPMin)) ) { 
+        if(((lastPPMchange + 30) < millis()) && (PPMinPIN & (1<<PPMin)) ) { 
             // it has been > 30 ms since last change and the PPM pin is high
             // if the 9x is in simulator or student mode the PPM line will be low
             // stop Tx to 9x
@@ -130,7 +130,7 @@ int main() {
             lowPinPORT |= (1<<IO_C); // this pin will go high if it thinks the 9x is being programmed
             sendTo9xEnable = 0; // disable sending to 9x side
             NinexTx_RB.clear(); // clear the buffer
-            reenableTimer = millis() + 3000ul;
+            reenableTimer = millis() + 15000ul;
         } else {
             if(!sendTo9xEnable) {
                 // ppm is back, reenable Tx to 9x
@@ -139,7 +139,7 @@ int main() {
                     sendTo9xEnable = 1;
                     flags.Startup = 1;
                     UCSR0B |= (1<<TXEN0)|(1<<UDRIE0); // reenable the Tx
-                    sendSwitchesCount = millis() + 3;
+                    sendSwitchesCount = millis() + 19;
 		    UDR0 = 0xFF; // send a byte to set up transmit complete flag
 		    sei();
 #ifdef DEBUG
@@ -158,7 +158,7 @@ int main() {
             ppmReady = 0;
             sei();
 
-            if(++clockUpdateCount == 32) { // don't change the clock so often
+            if(++clockUpdateCount == 160) { // don't change the clock so often
                 clockUpdateCount = 0; // reset counter
                 //PPMpulseTime @ 1MHZ pulse time is equal to the pulse length in us
                 cli(); // protect from changing in interrupt
@@ -200,7 +200,7 @@ int main() {
                 }
                 lowPinDDR |= (1<<IO_A); // pull IO_A while packets are being received
 		lowPinPORT &= ~(1<<IO_A);
-		IOAtimeoutMillis = millis() + 200; // set timeout 1S into the future
+		IOAtimeoutMillis = millis() + 1000ul; // set timeout 1S into the future
             } else { // cannot send to 9x, just dump the packet
                 cli();
                 flags.FrskyRxBufferReady = 0; // Signal Rx buffer is ok to receive

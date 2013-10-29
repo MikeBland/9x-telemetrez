@@ -57,13 +57,13 @@ void setup(void) {
     highPinPORT |= (1<<IO_G)|(1<<IO_H)|(1<<IO_I);
 #endif
   
-    // set up 20ms timer
+    // set up ms timer
     TCCR0A = (1<<WGM01); // CTC mode
     TIMSK |= (1<<OCIE0A); // enable interrupt
     TCNT0 = 0;
 
-    OCR0A = 156; // 5ms time out
-    TCCR0B = (1<<CS02); // /256 prescaler, start timer0
+    OCR0A = 125; // 1ms time out
+    TCCR0B = (1<<CS01)|(1<<CS00); // /64 prescaler, start timer0
 
     sei();
 }
