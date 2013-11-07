@@ -26,4 +26,6 @@ extern volatile uint8_t encoderPosition;
 extern volatile uint8_t intStarted;
 #endif
 
+extern volatile uint32_t XJTPacketEnd;
+
 #endif

@@ -65,8 +65,11 @@ const uint32_t ProdTestMax = 4875;
 // IO_A
 uint32_t IOAtimeoutMillis = 0;
 
+volatile uint32_t XJTPacketEnd = 0;
+
 extern void setup(void);
 extern uint32_t millis(void);
+extern void Rx_Frsky_XJT(void);
 
 int main() {
     CCP = 0xD8; // Unlock protected IO signature
@@ -186,7 +189,7 @@ int main() {
         }   // end flags.ppmReady
 #endif
 
-    // forward packet to 9x
+    // forward D packet to 9x
         if(flags.FrskyRxBufferReady) {
             if(sendTo9xEnable) {
                 if(NinexTx_RB.bytesFree() > 19) {  // wait for buffer to have free space
@@ -210,6 +213,24 @@ int main() {
 	    lowPinDDR &= ~(1<<IO_A); // Reset to high-impedance
 	    lowPinPORT |= (1<<IO_A); // with pull-up enabled
 	}
+    // forward X packet to 9x
+    if(flags2.InPacket && (time > XJTPacketEnd)) {
+        cli();
+        if(sendTo9xEnable) {      
+            if(numPktBytesFrsky > 9) { // a valid packet will have 10 or more bytes
+                if(NinexTx_RB.bytesFree() > 19) {  // wait for buffer to have free space
+                    for(uint8_t i=0; i < numPktBytesFrsky; i++) { // add new packet to Tx buffer
+                        NinexTx_RB.push(FrskyRxBuf[i]);
+                    }
+                    UCSR0B |= (1<<UDRIE0); // enable interrupt to send bytes
+                }
+            }
+        }
+        flags2.InPacket = 0;
+        flags2.resetRx = 1;
+        Rx_Frsky_XJT();
+        sei();
+    }
 
     // forward packet to Frsky module
         if(flags.NinexRxBufferReady) { 
