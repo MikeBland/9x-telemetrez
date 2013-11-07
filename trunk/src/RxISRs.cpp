@@ -1,18 +1,76 @@
 #include "telemetrEZ.h"
 #include "externalVariables.h"
 
-// ************************************************
-// *** Receive from Frsky module ***
-// ************************************************
-// Framework for Frsky Rx and decoding taken from Er9x project
-// Receive buffer state machine state defs
+static void Rx_Frsky_D(void);
+void Rx_Frsky_XJT(void);
+
+extern uint32_t millis(void);
+
+ISR(USART1__RX_vect)
+{
+    if(flags2.ModuleMode)
+        Rx_Frsky_D();
+    else
+        Rx_Frsky_XJT();
+}
+
 #define frskyDataIdle    0
 #define frskyDataStart   1
 #define frskyDataInFrame 2
 
 #define START_STOP      0x7e
+// ************************************************
+// *** Receive from Frsky XJT module ***
+// ************************************************
+void Rx_Frsky_XJT(void)
+{
+    // packet processing, and Rx reset will be handled by main
+    uint8_t stat;
+    uint8_t data;
 
-ISR(USART1__RX_vect)
+    static uint8_t dataState = frskyDataIdle;
+
+    stat = UCSR1A; // USART control and Status Register 0 A
+    data = UDR1; // USART data register 0
+
+    if ( flags2.resetRx || (stat & ((1 << FE1) | (1 << DOR1) | (1 << UPE1))) )
+    { // discard buffer and start fresh on any comms error
+        flags2.resetRx = 0;
+        flags.FrskyRxBufferReady = 0;
+        numPktBytesFrsky = 0;
+        dataState = frskyDataIdle;
+    } 
+    else
+    {
+        switch (dataState) 
+      {
+        case frskyDataInFrame:
+          FrskyRxBuf[numPktBytesFrsky++] = data;
+          break;
+
+        case frskyDataIdle:
+          if (data == START_STOP)
+          {
+            numPktBytesFrsky = 0;
+            FrskyRxBuf[numPktBytesFrsky++] = data;
+            dataState = frskyDataInFrame;
+            // start 4ms timeout
+            flags2.InPacket = 1;
+            XJTPacketEnd = millis() + 4;
+          }
+          break;
+
+      } // switch
+    }
+
+}
+
+// ************************************************
+// *** Receive from Frsky D series module ***
+// ************************************************
+// Framework for Frsky Rx and decoding taken from Er9x project
+// Receive buffer state machine state defs
+void Rx_Frsky_D(void)
 {
   uint8_t stat;
   uint8_t data;
@@ -26,6 +84,7 @@ ISR(USART1__RX_vect)
   { // discard buffer and start fresh on any comms error
     flags.FrskyRxBufferReady = 0;
     numPktBytesFrsky = 0;
+    dataState = frskyDataIdle;
   } 
   else
   {

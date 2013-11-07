@@ -76,6 +76,15 @@
 
 #define BAUD 9600  // USART Baud rate
 #include <util/setbaud.h> // this will calculate the proper config values
+#define UBRRH_D_VALUE UBRRH_VALUE
+#define UBRRL_D_VALUE UBRRL_VALUE
+#define USE_2X_D USE_2X
+
+#define BAUD 57600
+#include <util/setbaud.h> // this will calculate the proper config values
+#define UBRRH_XJT_VALUE UBRRH_VALUE
+#define UBRRL_XJT_VALUE UBRRL_VALUE
+#define USE_2X_XJT USE_2X
 
 #define PPMinDDR DDRC
 #define PPMinPUE PUEC
@@ -95,5 +104,12 @@ typedef struct flgRegs {
     uint8_t sendEncoder:1; // if the encoder is connected send it's position
 } flgRegs_t;
 #define flags (*(volatile flgRegs_t*)_SFR_MEM_ADDR(GPIOR0))
+
+typedef struct flgRegs2 {
+    uint8_t ModuleMode:1; // sets the module mode 1 for D, 0 for X 
+    uint8_t InPacket:1;
+    uint8_t resetRx:1;
+} flgRegs2_t;
+#define flags2 (*(volatile flgRegs2_t*)_SFR_MEM_ADDR(GPIOR1))
 
 #endif
