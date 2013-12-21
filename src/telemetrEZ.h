@@ -74,18 +74,6 @@
 // this also includes the production test code to flash an led
 #define DEBUG
 
-#define BAUD 9600  // USART Baud rate
-#include <util/setbaud.h> // this will calculate the proper config values
-#define UBRRH_D_VALUE UBRRH_VALUE
-#define UBRRL_D_VALUE UBRRL_VALUE
-#define USE_2X_D USE_2X
-
-#define BAUD 57600
-#include <util/setbaud.h> // this will calculate the proper config values
-#define UBRRH_XJT_VALUE UBRRH_VALUE
-#define UBRRL_XJT_VALUE UBRRL_VALUE
-#define USE_2X_XJT USE_2X
-
 #define PPMinDDR DDRC
 #define PPMinPUE PUEC
 #define PPMinPIN PINC
