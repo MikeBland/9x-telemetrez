@@ -30,7 +30,6 @@ FUSES =
 };
     
 // *** Buffers ***
-#define BufSize 20
 volatile uint8_t FrskyRxBuf[BufSize];
 volatile uint8_t NinexRxBuf[BufSize];
 volatile uint8_t SwitchBuf[5];
@@ -68,8 +67,12 @@ uint32_t IOAtimeoutMillis = 0;
 volatile uint32_t XJTPacketEnd = 0;
 
 extern void setup(void);
+extern void setBaudrates(void) ;
 extern uint32_t millis(void);
 extern void Rx_Frsky_XJT(void);
+uint8_t AckSeen ;
+uint8_t AckProcessed ;
+uint32_t AckTime ;
 
 int main() {
     CCP = 0xD8; // Unlock protected IO signature
@@ -167,24 +170,31 @@ int main() {
                 cli(); // protect from changing in interrupt
                 uint16_t pulse = PPMpulseTime;
                 sei();
-                uint8_t error = (pulse / 8) % 50;
-
+                uint8_t error ;
+                if(flags2.ModuleMode)
+                {
+                  error = (pulse / 8) % 50;
+								}
+								else // XJT module
+								{
+                  error = (pulse-8800) / 8 ; // 0-50
+								}
                 if((error > 1) && (error < 49)) { 
-                    lowPinPORT |= (1<<IO_C);
-                    if(error != 25) { // because if it is 25 we don't know which way to make the correction
-                     if(error > 25) { // clock is running slow
-                         if(OSCCAL0 < 255) // don't want to wrap around
-                           OSCCAL0++; // increasing OSCCAL will speed up the oscillator
-                     } else {
-                      // clock is fast so slow if down
-                         if(OSCCAL0 > 0) // don't want to wrap around
-                           OSCCAL0--;
-                     } // end error > 25
-                    }   // end error != 25
+                  lowPinPORT |= (1<<IO_C);
+                  if(error != 25) { // because if it is 25 we don't know which way to make the correction
+                   if(error > 25) { // clock is running slow
+                       if(OSCCAL0 < 255) // don't want to wrap around
+                         OSCCAL0++; // increasing OSCCAL will speed up the oscillator
+                   } else {
+                    // clock is fast so slow if down
+                       if(OSCCAL0 > 0) // don't want to wrap around
+                         OSCCAL0--;
+                   } // end error > 25
+                  }   // end error != 25
 #ifdef DEBUG
-                    lowPinPORT &= ~(1<<IO_C);
+                  lowPinPORT &= ~(1<<IO_C);
 #endif
-                } // end error within range
+								} // end error within range
             }   // end clock update
         }   // end flags.ppmReady
 #endif
@@ -250,6 +260,12 @@ int main() {
             // nothing to do yet . . .
             // Should be something to configure the 10 I/Os
             // and packets to set the output state or read an input
+          	if (numPktBytes9x == 2)// Neither ESCAPE in buffer
+						{ // An ACK
+							flags2.HostMode = NinexRxBuf[1] ;
+							AckTime = millis() ;
+							AckSeen = 1 ;
+						}
             cli();
             flags.PktReceived9x = 0;
             sei();
@@ -302,6 +318,48 @@ int main() {
       }
 	}
 #endif
+
+	if ( flags2.HostMode == flags2.ModuleMode )
+	{
+		flags2.ModuleMode = ~flags2.HostMode ;
+		setBaudrates() ;
+	}
+
+	if ( flags2.ModuleMode )
+	{
+		highPinPORT |= (1<<IO_J);
+	}else
+	{
+		highPinPORT &= ~(1<<IO_J);
+	}
+
+
+//	if ( AckSeen == 0 )
+//	{
+//		if ( (time - AckTime) >= 1000 )
+//		{ // flip baudrates
+//			if ( AckProcessed < 2 )
+//			{
+//				if ( flags2.ModuleMode == 0 )
+//				{
+//					flags2.ModuleMode = 1 ;
+//					setBaudrates() ;
+//				}
+//				else
+//				{
+//					flags2.ModuleMode = 0 ;
+//					setBaudrates() ;
+//				}
+//				AckProcessed += 1 ;
+//			}
+//			else
+//			{
+//				AckProcessed = 2 ;
+//			}
+//			AckTime = time ;
+//		}
+//	}
+
 	if(time == millis()) {
     		// sleep to save energy here
         	// by default sleep mode is idle

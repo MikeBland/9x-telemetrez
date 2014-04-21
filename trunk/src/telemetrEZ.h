@@ -97,7 +97,10 @@ typedef struct flgRegs2 {
     uint8_t ModuleMode:1; // sets the module mode 1 for D, 0 for X 
     uint8_t InPacket:1;
     uint8_t resetRx:1;
+		uint8_t HostMode:1;
 } flgRegs2_t;
 #define flags2 (*(volatile flgRegs2_t*)_SFR_MEM_ADDR(GPIOR1))
+
+#define BufSize 20
 
 #endif

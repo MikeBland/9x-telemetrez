@@ -1,6 +1,59 @@
 #include "telemetrEZ.h"
 #include "externalVariables.h"
 
+void setBaudrates()
+{
+        //USART0:  9x side USART
+#undef BAUD
+#define BAUD 57600
+#include <util/setbaud.h>
+        UBRR0H = UBRRH_VALUE;
+        UBRR0L = UBRRL_VALUE;
+#if USE_2X
+        UCSR0A = (1<<U2X0);  // double USART speed
+#else
+        UCSR0A = 0;  // single USART speed
+#endif
+    
+		if(!flags2.ModuleMode) { // set baud rate for X type module
+        //USART1: Frsky side USART
+        UBRR1H = UBRRH_VALUE;
+        UBRR1L = UBRRL_VALUE;
+#if USE_2X
+        UCSR1A = (1<<U2X1);  // double USART speed
+#else
+        UCSR1A = 0;  // single USART speed
+#endif
+    } else {
+#undef BAUD
+#define BAUD 9600
+#include <util/setbaud.h>
+//        //USART0:  9x side USART
+//        UBRR0H = UBRRH_VALUE;
+//        UBRR0L = UBRRL_VALUE;
+//#if USE_2X
+//        UCSR0A = (1<<U2X0);  // double USART speed
+//#else
+//        UCSR0A = 0;  // single USART speed
+//#endif
+        //USART1: Frsky side USART
+        UBRR1H = UBRRH_VALUE;
+        UBRR1L = UBRRL_VALUE;
+#if USE_2X
+        UCSR1A = (1<<U2X1);  // double USART speed
+#else
+        UCSR1A = 0;  // single USART speed
+#endif
+
+    }
+
+	  // Flush FrSky receive FIFO
+		(void) UDR1 ;
+		(void) UDR1 ;
+		(void) UDR1 ;
+}
+
+
 //processor initalization
 void setup(void) {
 
@@ -48,7 +101,7 @@ void setup(void) {
     // check for 0x7E received within 30ms
     // set up ms timer
     TCCR0A = (1<<WGM01); // CTC mode
-    TIMSK |= (1<<OCIE0A); // enable interrupt
+//    TIMSK |= (1<<OCIE0A); // enable interrupt
     TCNT0 = 0;
     OCR0A = 235; // ms time out
     TCCR0B = (1<<CS02)|(1<<CS00); // /1024 prescaler, start timer0
@@ -61,50 +114,10 @@ void setup(void) {
                 flags2.ModuleMode = 1; // set flag for D mode
         }
     }
-    if(!flags2.ModuleMode) { // set baud rate for X type module
-        //USART0:  9x side USART
-#undef BAUD
-#define BAUD 57600
-#include <util/setbaud.h>
-        UBRR0H = UBRRH_VALUE;
-        UBRR0L = UBRRL_VALUE;
-#if USE_2X
-        UCSR0A = (1<<U2X0);  // double USART speed
-#else
-        UCSR0A = 0;  // single USART speed
-#endif
-        //USART1: Frsky side USART
-        UCSR1B = 0; // disable Tx and Rx
-        UBRR1H = UBRRH_VALUE;
-        UBRR1L = UBRRL_VALUE;
-#if USE_2X
-        UCSR1A = (1<<U2X1);  // double USART speed
-#else
-        UCSR1A = 0;  // single USART speed
-#endif
-    } else {
-#undef BAUD
-#define BAUD 9600
-#include <util/setbaud.h>
-        //USART0:  9x side USART
-        UBRR0H = UBRRH_VALUE;
-        UBRR0L = UBRRL_VALUE;
-#if USE_2X
-        UCSR0A = (1<<U2X0);  // double USART speed
-#else
-        UCSR0A = 0;  // single USART speed
-#endif
-        //USART1: Frsky side USART
-        UCSR1B = 0; // disable Tx and Rx
-        UBRR1H = UBRRH_VALUE;
-        UBRR1L = UBRRL_VALUE;
-#if USE_2X
-        UCSR1A = (1<<U2X1);  // double USART speed
-#else
-        UCSR1A = 0;  // single USART speed
-#endif
+		
+    UCSR1B = 0; // disable Tx and Rx
+		setBaudrates() ;
 
-    }
     UCSR0C = (1<<UCSZ01)|(1<<UCSZ00);  // 8-bit asynchronous mode 1 stop bit no parity
     UCSR0D = 0;     // no frame detection
     UCSR0B = (1<<RXCIE0)|(1<<RXEN0)|(1<<TXEN0); // enables the Tx and Rx, and Rx interrupt
