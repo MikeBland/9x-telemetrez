@@ -27,26 +27,42 @@ void Rx_Frsky_XJT(void)
     // packet processing, and Rx reset will be handled by main
     uint8_t stat;
     uint8_t data;
+		uint8_t reset = 0 ;
 
     static uint8_t dataState = frskyDataIdle;
 
-    stat = UCSR1A; // USART control and Status Register 0 A
-    data = UDR1; // USART data register 0
+    if ( flags2.resetRx )
+		{
+			reset = 1 ;
+      flags2.resetRx = 0;
+		}
+		else
+		{
+			stat = UCSR1A; // USART control and Status Register 0 A
+  	  data = UDR1; // USART data register 0
+    	if ( (stat & ((1 << FE1) | (1 << DOR1) | (1 << UPE1))) )
+			{
+				reset = 1 ;
+			}
+		}
 
-    if ( flags2.resetRx || (stat & ((1 << FE1) | (1 << DOR1) | (1 << UPE1))) )
+    if ( reset )
     { // discard buffer and start fresh on any comms error
-        flags2.resetRx = 0;
         flags.FrskyRxBufferReady = 0;
         numPktBytesFrsky = 0;
         dataState = frskyDataIdle;
     } 
     else
     {
-        switch (dataState) 
+				switch (dataState) 
       {
         case frskyDataInFrame:
-          FrskyRxBuf[numPktBytesFrsky++] = data;
-          break;
+          FrskyRxBuf[numPktBytesFrsky] = data;
+					if ( numPktBytesFrsky < BufSize - 1 )
+					{
+						numPktBytesFrsky += 1 ;
+					}
+					break;
 
         case frskyDataIdle:
           if (data == START_STOP)

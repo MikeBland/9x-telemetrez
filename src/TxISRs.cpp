@@ -55,6 +55,10 @@ ISR(USART0__UDRE_vect) {
             }
             UDR0 = NinexTx_RB.front(); // load next byte from buffer
             NinexTx_RB.pop(); // remove the byte from the buffer
+            if(NinexTx_RB.empty())
+						{
+              U1TXstate = TxIDLE;
+						}
             break;
         default:
             U1TXstate = TxIDLE;

@@ -23,16 +23,22 @@ uint8_t ring_buffer::front() const volatile {
 	    return array[head];
 }
 void ring_buffer::pop() volatile {
+	if ( count )
+	{
     count--;
     head = (head +1) % maxSize;
+	}
 }
 uint8_t ring_buffer::bytesFree() volatile {
 	return (maxSize - count);
 }
 
 void ring_buffer::push(uint8_t c) volatile {
+	if ( count < maxSize )
+	{
     tail = (tail + 1) % maxSize;
     count++;
     array[tail] = c;
+	}
 }
 

@@ -199,9 +199,9 @@
 
 /* Reserved [0x14] */
 
-#define GPIOR1  _SFR_IO8(0x15)
+#define GPIOR0  _SFR_IO8(0x14)
 
-#define GPIOR0  _SFR_IO8(0x15)
+#define GPIOR1  _SFR_IO8(0x15)
 
 #define GPIOR2  _SFR_IO8(0x16)
 
